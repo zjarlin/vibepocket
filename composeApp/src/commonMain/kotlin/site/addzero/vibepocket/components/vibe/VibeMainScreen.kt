@@ -10,8 +10,13 @@ import site.addzero.vibepocket.components.vibe.model.MusicRepository
 import site.addzero.vibepocket.components.vibe.model.FakeMusicRepository
 import site.addzero.vibepocket.components.vibe.model.VibeSong
 
+import site.addzero.vibepocket.player.VibePlayer
+
 @Composable
-fun VibeMainScreen(musicRepository: MusicRepository = FakeMusicRepository()) {
+fun VibeMainScreen(
+    musicRepository: MusicRepository = FakeMusicRepository(),
+    player: VibePlayer? = null
+) {
     var selectedItem by remember { mutableStateOf(SidebarItem.Home) }
 
     // Use a custom darker theme for the Vibe UI
@@ -33,7 +38,7 @@ fun VibeMainScreen(musicRepository: MusicRepository = FakeMusicRepository()) {
             Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(16.dp)) {
                 when (selectedItem) {
                     SidebarItem.Home, SidebarItem.Library, SidebarItem.Playlists, SidebarItem.Explore -> {
-                        MusicSection(musicRepository)
+                        MusicSection(musicRepository, player)
                     }
                     SidebarItem.Video -> {
                         ComingSoonPlaceholder("Video")
@@ -51,7 +56,10 @@ fun VibeMainScreen(musicRepository: MusicRepository = FakeMusicRepository()) {
 }
 
 @Composable
-fun MusicSection(musicRepository: MusicRepository) {
+fun MusicSection(
+    musicRepository: MusicRepository,
+    player: VibePlayer? = null
+) {
     var upcomingTracks by remember { mutableStateOf<List<VibeSong>>(emptyList()) }
     
     LaunchedEffect(Unit) {
@@ -62,7 +70,7 @@ fun MusicSection(musicRepository: MusicRepository) {
     Row(modifier = Modifier.fillMaxSize()) {
         // Main Player Area
         Column(modifier = Modifier.weight(0.6f).fillMaxHeight()) {
-           MusicPlayer(modifier = Modifier.weight(1f))
+           MusicPlayer(modifier = Modifier.weight(1f), player = player)
         }
         
         Spacer(modifier = Modifier.width(20.dp))

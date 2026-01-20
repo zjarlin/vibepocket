@@ -1,11 +1,6 @@
-package com.zjarlin.vibe.logic
+package site.addzero.vibepocket.components.vibe.logic
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 data class Track(
     val id: String,
@@ -23,7 +18,7 @@ class MusicPlayerController {
 
     private val _currentProgress = mutableStateOf(0f)
     val currentProgress: Float get() = _currentProgress.value
-    
+
     // Current Track
     private val _currentTrack = mutableStateOf(
         Track("1", "Midnight City", "M83", "Hurry Up, We're Dreaming", 243)

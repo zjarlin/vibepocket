@@ -12,6 +12,7 @@ pluginManagement {
         }
         mavenCentral()
         gradlePluginPortal()
+        mavenLocal()
     }
 }
 
@@ -25,6 +26,7 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        mavenLocal()
     }
 }
 
@@ -33,5 +35,5 @@ plugins {
 }
 
 include(":composeApp")
-include(":server")
+//include(":server") // excluded by Gradle Buddy
 include(":shared")

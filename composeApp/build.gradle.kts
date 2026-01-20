@@ -44,6 +44,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation("site.addzero:tool-api-music-search:2026.01.20")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -52,6 +53,7 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.preview)
+            implementation(compose.materialIconsExtended)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(projects.shared)
@@ -62,6 +64,8 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation("site.addzero:tool-api-music-search:2026.01.20")
+            implementation("javazoom:jlayer:1.0.1")
         }
     }
 }

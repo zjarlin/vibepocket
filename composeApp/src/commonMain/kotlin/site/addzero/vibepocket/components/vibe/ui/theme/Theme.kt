@@ -1,4 +1,4 @@
-package com.zjarlin.vibe.ui.theme
+package site.addzero.vibepocket.components.vibe.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme

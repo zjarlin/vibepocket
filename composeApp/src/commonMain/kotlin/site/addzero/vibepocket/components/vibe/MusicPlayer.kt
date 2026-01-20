@@ -27,10 +27,22 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.sp
 import kotlin.random.Random
 
+import site.addzero.vibepocket.player.VibePlayer
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+
 @Composable
-fun MusicPlayer(modifier: Modifier = Modifier) {
+fun MusicPlayer(
+    modifier: Modifier = Modifier,
+    player: VibePlayer? = null
+) {
+    val isPlaying by player?.isPlaying?.collectAsState(false) ?: remember { mutableStateOf(false) }
+
     GlassContainer(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -76,10 +88,25 @@ fun MusicPlayer(modifier: Modifier = Modifier) {
                             shape = CircleShape
                         )
                         .clip(CircleShape)
-                        .clickable { },
+                        .clickable {
+                            if (isPlaying) {
+                                player?.pause()
+                            } else {
+                                // Hardcoded Suno Song for Testing
+                                // User provided: https://cdn2.suno.ai/image_large_0d3134bf-39e5-44c6-bfe3-01a3119d0149.jpeg
+                                // Inferred Audio ID: 0d3134bf-39e5-44c6-bfe3-01a3119d0149
+                                val songUrl = "https://cdn1.suno.ai/0d3134bf-39e5-44c6-bfe3-01a3119d0149.mp3"
+                                player?.play(songUrl)
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.PlayArrow, "Play", tint = Color.White, modifier = Modifier.size(32.dp))
+                    Icon(
+                        if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        "Play",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -114,18 +141,23 @@ fun MusicPlayer(modifier: Modifier = Modifier) {
             // Track Info
             Row(verticalAlignment = Alignment.CenterVertically) {
                // Album Art Placeholder
+               // Use user provided image
+               // https://cdn2.suno.ai/image_large_0d3134bf-39e5-44c6-bfe3-01a3119d0149.jpeg
                Box(
                    modifier = Modifier
                        .size(60.dp)
                        .clip(RoundedCornerShape(8.dp))
                        .background(VibeColors.Tertiary.copy(alpha=0.5f))
                        .border(1.dp, VibeColors.Secondary, RoundedCornerShape(8.dp))
-               )
+               ) {
+                    // TODO: Load async image
+                    // For now, simple box with color
+               }
                Spacer(modifier = Modifier.width(16.dp))
                Column {
-                   Text("Midnight Drift", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                   Text("Artist: Neon Dreams", color = Color.White.copy(alpha=0.7f), fontSize = 14.sp)
-                   Text("Album: Ethereal Beats", color = Color.White.copy(alpha=0.5f), fontSize = 12.sp)
+                   Text("Suno Test Track", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                   Text("Artist: AI Vibe", color = Color.White.copy(alpha=0.7f), fontSize = 14.sp)
+                   Text("Album: Test Drive", color = Color.White.copy(alpha=0.5f), fontSize = 12.sp)
                }
             }
         }
