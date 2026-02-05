@@ -1,0 +1,28 @@
+@file:Suppress("UnstableApiUsage")
+
+import org.gradle.api.artifacts.VersionCatalogsExtension
+
+plugins {
+    id("org.jetbrains.kotlin.jvm")
+    id("com.google.devtools.ksp")
+    application
+}
+
+val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+application {
+    val isDevelopment: Boolean = project.ext.has("development")
+    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
+
+dependencies {
+    implementation(libs.findLibrary("koin-annotations").get())
+    implementation(libs.findLibrary("koin-ktor").get())
+    implementation(libs.findLibrary("koin-loggerSlf4j").get())
+    implementation(libs.findLibrary("logback").get())
+    implementation(libs.findLibrary("ktor-serverCore").get())
+    implementation(libs.findLibrary("ktor-serverNetty").get())
+    ksp(libs.findLibrary("koin-ksp-compiler").get())
+    testImplementation(libs.findLibrary("ktor-serverTestHost").get())
+    testImplementation(libs.findLibrary("kotlin-testJunit").get())
+}
