@@ -23,15 +23,15 @@ extensions.configure<KotlinMultiplatformExtension> {
         }
     }
 
-    iosArm64()
-    iosSimulatorArm64()
+//    iosArm64()
+//    iosSimulatorArm64()
 
     jvm()
 
-    js {
-        browser()
-        binaries.executable()
-    }
+//    js {
+//        browser()
+//        binaries.executable()
+//    }
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
