@@ -20,8 +20,10 @@ koin = "4.1.1"
 koin-annotations = "2.3.1"
 koin-ksp = "2.3.1"
 ksp = "2.3.0"
+mediaplayerKmpVersion = "2.1.0"
 
 [libraries]
+khubaibkhan4-mediaplayer-kmp = { module = "io.github.khubaibkhan4:mediaplayer-kmp", version.ref = "mediaplayerKmpVersion" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }

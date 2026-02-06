@@ -1,4 +1,7 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
@@ -12,25 +15,22 @@ kotlin {
             isStatic = true
         }
     }
-
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
+    dependencies {
 //               implementation("io.github.shadmanadman:kmpShaPlayer:1.0.2")
 //                implementation("io.github.kdroidfilter:composemediaplayer:0.8.7")
-               implementation("io.github.khubaibkhan4:mediaplayer-kmp:2.1.0")
+        implementation("io.github.vinceglb:filekit-core:0.12.0")
+        implementation("io.github.vinceglb:filekit-dialogs:0.12.0")
+        implementation("io.github.vinceglb:filekit-dialogs-compose:0.12.0")
+        implementation("io.github.vinceglb:filekit-coil:0.12.0")
 
+        implementation(libs.khubaibkhan4.mediaplayer.kmp)
+        implementation(projects.shared)
+    }
 
-
-
-                implementation(projects.shared)
-            }
-        }
-        val jvmMain by getting {
-            dependencies {
-                implementation(compose.desktop.currentOs)
-                implementation(libs.kotlinx.coroutinesSwing)
-            }
+    sourceSets {
+        jvmMain.dependencies {
+            implementation(compose.desktop.currentOs)
+            implementation(libs.kotlinx.coroutinesSwing)
         }
     }
 }
