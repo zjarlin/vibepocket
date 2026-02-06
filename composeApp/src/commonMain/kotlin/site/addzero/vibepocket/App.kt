@@ -11,11 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 fun App() {
     MaterialTheme {
         Column {
-//            Main2()
-//            MainScreen()
-//            MediaPlayerDemo()
-            MediaPlayerDemo()
-
+            MusicScreen()
         }
     }
 }
