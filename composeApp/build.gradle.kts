@@ -16,6 +16,13 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+//               implementation("io.github.shadmanadman:kmpShaPlayer:1.0.2")
+//                implementation("io.github.kdroidfilter:composemediaplayer:0.8.7")
+               implementation("io.github.khubaibkhan4:mediaplayer-kmp:2.1.0")
+
+
+
+
                 implementation(projects.shared)
             }
         }
