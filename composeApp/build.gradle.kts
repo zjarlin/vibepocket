@@ -23,6 +23,7 @@ kotlin {
         implementation("io.github.vinceglb:filekit-dialogs-compose:0.12.0")
         implementation("io.github.vinceglb:filekit-coil:0.12.0")
 
+        implementation("site.addzero:compose-native-component-glass:2025.12.22")
         implementation("io.ktor:ktor-client-core:${libs.versions.ktor.get()}")
         implementation("io.ktor:ktor-client-cio:${libs.versions.ktor.get()}")
         implementation("io.ktor:ktor-client-content-negotiation:${libs.versions.ktor.get()}")

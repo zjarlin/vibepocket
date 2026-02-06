@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.findLibrary("logback").get())
     implementation(libs.findLibrary("ktor-serverCore").get())
     implementation(libs.findLibrary("ktor-serverNetty").get())
+    implementation(libs.findLibrary("ktor-serverStatusPages").get())
     ksp(libs.findLibrary("koin-ksp-compiler").get())
     testImplementation(libs.findLibrary("ktor-serverTestHost").get())
     testImplementation(libs.findLibrary("kotlin-testJunit").get())
