@@ -9,17 +9,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import io.github.vinceglb.filekit.FileKit
-import io.github.vinceglb.filekit.dialogs.deprecated.openFileSaver
+import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.statement.readRawBytes
 import kotlinx.coroutines.launch
 
 val url = "https://cdn1.suno.ai/b5390e2d-80ba-42c8-820b-b79b0dfc0adb.mp3"
 
 @Composable
 fun MediaPlayerDemo() {
-    val scope = rememberCoroutineScope ()
-    Column {
+    val scope = rememberCoroutineScope()
+    val client = HttpClient()
+    val fileSaverLauncher = rememberFileSaverLauncher { file ->
+        // 保存完成后的回调，file 为保存的文件（可能为 null 如果用户取消）
+    }
 
+    Column {
         MediaPlayer(
             modifier = Modifier.fillMaxWidth(),
             url = url,
@@ -35,18 +41,17 @@ fun MediaPlayerDemo() {
         )
         Button(
             onClick = {
-                // TODO:
                 scope.launch {
-                    FileKit.openFileSaver(
-                        bytes = TODO()
+                    val bytes = client.get(url).readRawBytes()
+                    fileSaverLauncher.launch(
+                        bytes = bytes,
+                        baseName = "audio",
+                        extension = "mp3"
                     )
                 }
             },
             content = { Text("download") }
         )
-
     }
-
-
 }
 
