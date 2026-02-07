@@ -22,7 +22,6 @@ fun MediaPlayerDemo() {
     val scope = rememberCoroutineScope()
     val client = HttpClient()
     val fileSaverLauncher = rememberFileSaverLauncher { file ->
-        // 保存完成后的回调，file 为保存的文件（可能为 null 如果用户取消）
     }
 
     Column {

@@ -1,7 +1,7 @@
 plugins {
-    id("site.addzero.conventions.component")
+    id("site.addzero.conventions.kmp-core")
 }
 
-android {
-    namespace = "site.addzero.vibepocket.shared"
-}
+//android {
+//    namespace = "site.addzero.vibepocket.shared"
+//}

@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+package site.addzero.conventions
+
+import gradle.kotlin.dsl.accessors._d91e95f7e6eb91f674b365c3c524c1b9.ksp
 import org.gradle.api.artifacts.VersionCatalogsExtension
 
 plugins {

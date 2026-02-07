@@ -1,38 +1,11 @@
-rootProject.name = "vibepocket"
+rootProject.name =rootDir.name
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        google {
-            mavenContent {
-                includeGroupAndSubgroups("androidx")
-                includeGroupAndSubgroups("com.android")
-                includeGroupAndSubgroups("com.google")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-
-dependencyResolutionManagement {
-    repositories {
-        google {
-            mavenContent {
-                includeGroupAndSubgroups("androidx")
-                includeGroupAndSubgroups("com.android")
-                includeGroupAndSubgroups("com.google")
-            }
-        }
-        mavenCentral()
-    }
-}
-
+includeBuild("build-logic")
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+//  id("site.addzero.gradle.plugin.addzero-git-dependency") version "+"
+  id("site.addzero.gradle.plugin.modules-buddy") version "+"
+  id("site.addzero.gradle.plugin.repo-buddy") version "+"
+//    id("io.gitee.zjarlin.auto-modules") version "0.0.608"
 }
 
-include(":composeApp")
-include(":server")
-include(":shared")

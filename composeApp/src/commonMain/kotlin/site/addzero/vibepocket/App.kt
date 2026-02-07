@@ -20,8 +20,6 @@ import site.addzero.vibepocket.screens.ProgrammingScreen
 import site.addzero.vibepocket.screens.SettingsScreen
 import site.addzero.vibepocket.screens.VideoScreen
 
-// 自定义图标（因为 Material Icons 在 Compose Multiplatform 中的导入可能有问题）
-// 可以稍后替换为自定义图标或其他图标库
 
 @Composable
 @Preview
