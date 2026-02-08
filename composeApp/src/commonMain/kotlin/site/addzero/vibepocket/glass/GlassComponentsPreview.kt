@@ -26,6 +26,7 @@ import site.addzero.component.glass.LiquidGlassButton
 import site.addzero.component.glass.LiquidGlassCard
 import site.addzero.component.glass.NeonGlassButton
 import site.addzero.component.glass.NeonGlassCard
+    val color = GlassColors.DarkBackground
 
 /**
  * 玻璃按钮预览
@@ -36,7 +37,7 @@ fun GlassButtonPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -66,7 +67,7 @@ fun NeonGlassButtonPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -102,7 +103,7 @@ fun LiquidGlassButtonPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -132,7 +133,7 @@ fun GlassCardPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         GlassCard(
@@ -171,7 +172,7 @@ fun NeonGlassCardPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -226,7 +227,7 @@ fun LiquidGlassCardPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         LiquidGlassCard(
@@ -264,7 +265,7 @@ fun GlassInfoCardPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         GlassInfoCard(
@@ -285,7 +286,7 @@ fun GlassStatCardPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -329,7 +330,7 @@ fun GlassFeatureCardPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         GlassFeatureCard(
@@ -364,7 +365,7 @@ fun GlassTextFieldPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -400,7 +401,7 @@ fun GlassSearchFieldPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         GlassSearchField(
@@ -424,7 +425,7 @@ fun GlassTextAreaPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground),
+            .background(color),
         contentAlignment = Alignment.TopCenter
     ) {
         GlassTextArea(
@@ -447,7 +448,7 @@ fun GlassComponentsShowcasePreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground)
+            .background(color)
     ) {
         Column(
             modifier = Modifier

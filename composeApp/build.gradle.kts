@@ -20,9 +20,8 @@ kotlin {
         implementation("io.ktor:ktor-serialization-kotlinx-json:${libs.versions.ktor.get()}")
 
         implementation(libs.khubaibkhan4.mediaplayer.kmp)
-//        implementation(libs.androidx.navigation.compose)
-        implementation(libs.nav3)
-        implementation(libs.viewmodel.nav3)
+        implementation(libs.nav3)          // nav3 1.1.0-alpha02 拉入 compose 1.11-alpha / skiko 0.9.40，与当前 compose 1.10.0 / skiko 0.9.37.3 冲突
+        implementation(libs.viewmodel.nav3) // 等 compose 升级到 1.11 稳定版再启用
 
 //        implementation(projects.shared)
     }
