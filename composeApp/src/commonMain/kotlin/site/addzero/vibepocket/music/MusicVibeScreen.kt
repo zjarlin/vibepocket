@@ -13,10 +13,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
+import site.addzero.vibepocket.api.SunoApiClient
 import site.addzero.vibepocket.model.*
+import site.addzero.vibepocket.settings.ConfigStore
 
 private val prettyJson = Json { prettyPrint = true; encodeDefaults = true }
 
@@ -25,7 +28,9 @@ private val prettyJson = Json { prettyPrint = true; encodeDefaults = true }
  * 分屏布局：左侧分步表单，右侧任务进度
  */
 @Composable
-fun MusicVibeScreen() {
+fun MusicVibeScreen(configStore: ConfigStore) {
+    val scope = rememberCoroutineScope()
+
     // ===== 表单状态 =====
     var currentStep by remember { mutableStateOf(VibeStep.LYRICS) }
     // Step 1: 歌词
@@ -45,6 +50,8 @@ fun MusicVibeScreen() {
     var submittedJson by remember { mutableStateOf<String?>(null) }
     var taskStatus by remember { mutableStateOf("未提交") }
     var isSubmitted by remember { mutableStateOf(false) }
+    var sunoTask by remember { mutableStateOf<SunoTask?>(null) }
+    var isSubmitting by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -64,7 +71,6 @@ fun MusicVibeScreen() {
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    // 标题
                     Text(
                         text = "🎵 Music Vibe",
                         color = Color.White,
@@ -79,11 +85,9 @@ fun MusicVibeScreen() {
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // 步骤指示器
                     StepIndicator(currentStep)
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // 表单内容
                     AnimatedContent(targetState = currentStep) { step ->
                         when (step) {
                             VibeStep.LYRICS -> LyricsStep(
@@ -138,8 +142,10 @@ fun MusicVibeScreen() {
                             }
                             VibeStep.PARAMS -> {
                                 NeonGlassButton(
-                                    text = "🚀 提交 Vibe",
+                                    text = if (isSubmitting) "⏳ 提交中..." else "🚀 提交 Vibe",
                                     onClick = {
+                                        if (isSubmitting) return@NeonGlassButton
+
                                         val request = SunoMusicRequest(
                                             mv = mv,
                                             title = title.ifBlank { null },
@@ -152,14 +158,44 @@ fun MusicVibeScreen() {
                                         )
                                         val jsonStr = prettyJson.encodeToString(request)
                                         submittedJson = jsonStr
-                                        taskStatus = "已提交，等待后端处理..."
                                         isSubmitted = true
-                                        // TODO: 实际调用后端 API
-                                        println("===== Suno Request JSON =====")
-                                        println(jsonStr)
-                                        println("=============================")
+                                        isSubmitting = true
+                                        taskStatus = "正在提交..."
+
+                                        // 从配置读取 token 和 baseUrl
+                                        val configs = configStore.load()
+                                        val tokenConfig = configs.music.firstOrNull { it.label.contains("Token") }
+                                        val urlConfig = configs.music.firstOrNull { it.label.contains("URL") }
+                                        val token = tokenConfig?.key ?: ""
+                                        val url = urlConfig?.baseUrl?.ifBlank { null } ?: "https://vector.addzero.site"
+
+                                        scope.launch {
+                                            try {
+                                                val client = SunoApiClient(apiToken = token, baseUrl = url)
+                                                // 1. 提交任务
+                                                taskStatus = "正在提交任务..."
+                                                val taskId = client.generateMusic(request)
+                                                taskStatus = "已提交，任务 ID: $taskId\n轮询中..."
+
+                                                // 2. 轮询等待完成
+                                                val completedTask = client.waitForCompletion(
+                                                    taskId = taskId,
+                                                    onStatusUpdate = { task ->
+                                                        sunoTask = task
+                                                        taskStatus = task?.displayStatus ?: "查询中..."
+                                                    }
+                                                )
+                                                sunoTask = completedTask
+                                                taskStatus = completedTask.displayStatus
+                                            } catch (e: Exception) {
+                                                taskStatus = "❌ 错误: ${e.message}"
+                                            } finally {
+                                                isSubmitting = false
+                                            }
+                                        }
                                     },
-                                    glowColor = GlassColors.NeonPurple
+                                    glowColor = GlassColors.NeonPurple,
+                                    enabled = !isSubmitting
                                 )
                             }
                         }
@@ -177,7 +213,8 @@ fun MusicVibeScreen() {
                 ) {
                     TaskProgressPanel(
                         submittedJson = submittedJson,
-                        taskStatus = taskStatus
+                        taskStatus = taskStatus,
+                        sunoTask = sunoTask,
                     )
                 }
             }

@@ -76,7 +76,7 @@ fun GlassSidebar(
         modifier = modifier
             .width(width)
             .fillMaxHeight()
-            .glassEffect(shape = RoundedCornerShape(0.dp))
+            .jbPurpleGlassEffect()
             .padding(vertical = 16.dp)
             .verticalScroll(rememberScrollState()),
     ) {
@@ -111,13 +111,13 @@ private fun SidebarMenuItem(
     onClick: () -> Unit,
 ) {
     val backgroundColor = if (item.isSelected) {
-        GlassTheme.GlassSurfaceHover
+        GlassTheme.JBPurpleHighlight.copy(alpha = 0.2f)
     } else {
         Color.Transparent
     }
 
     val textColor = if (item.isSelected) {
-        GlassTheme.NeonCyan
+        GlassTheme.JBPurpleHighlight
     } else {
         GlassTheme.TextSecondary
     }
@@ -213,7 +213,7 @@ fun <T> GlassSidebar(
         modifier = modifier
             .width(width)
             .fillMaxHeight()
-            .glassEffect(shape = RoundedCornerShape(0.dp))
+            .jbPurpleGlassEffect()
             .padding(vertical = 16.dp)
             .verticalScroll(rememberScrollState()),
     ) {
@@ -281,13 +281,13 @@ private fun <T> TreeNodeItem(
     val indentPadding = indentPerLevel * depth
 
     val backgroundColor = if (isSelected) {
-        GlassTheme.GlassSurfaceHover
+        GlassTheme.JBPurpleHighlight.copy(alpha = 0.2f)
     } else {
         Color.Transparent
     }
 
     val textColor = when {
-        isSelected -> GlassTheme.NeonCyan
+        isSelected -> GlassTheme.JBPurpleHighlight
         hasChildren -> GlassTheme.TextPrimary
         else -> GlassTheme.TextSecondary
     }

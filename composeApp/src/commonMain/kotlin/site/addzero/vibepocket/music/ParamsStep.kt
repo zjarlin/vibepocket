@@ -115,7 +115,7 @@ fun ParamsStep(
                 Text("💡 AI 灵感描述（可选）", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Text(
                     text = "用自然语言描述你想要的音乐风格，AI 会据此生成",
-                    color = Color.White.copy(alpha = 0.5f), fontSize = 12.sp
+                    color = GlassTheme.TextTertiary, fontSize = 12.sp
                 )
                 GlassTextArea(
                     value = gptDescriptionPrompt,
@@ -130,7 +130,7 @@ fun ParamsStep(
 
 @Composable
 private fun FieldLabel(text: String) {
-    Text(text = text, color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+    Text(text = text, color = GlassTheme.TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
 }
 
 @Composable
@@ -156,7 +156,7 @@ fun ChipSelector(
             ) {
                 Text(
                     text = displayLabel,
-                    color = if (isSelected) GlassColors.NeonCyan else Color.White.copy(alpha = 0.6f),
+                    color = if (isSelected) GlassColors.NeonCyan else GlassTheme.TextSecondary,
                     fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                 )

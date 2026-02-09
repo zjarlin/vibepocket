@@ -2,13 +2,15 @@ package site.addzero.vibepocket.music
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import site.addzero.component.glass.*
+import site.addzero.vibepocket.api.MusicSearchClient
 
 /**
  * 第一步：确认歌词
@@ -20,8 +22,12 @@ fun LyricsStep(
     songName: String,
     onSongNameChange: (String) -> Unit,
     artistName: String,
-    onArtistNameChange: (String) -> Unit
+    onArtistNameChange: (String) -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+    var isSearching by remember { mutableStateOf(false) }
+    var searchError by remember { mutableStateOf<String?>(null) }
+
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         // 搜索歌词区域
         NeonGlassCard(
@@ -54,14 +60,43 @@ fun LyricsStep(
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
+
                 GlassButton(
-                    text = "搜索歌词",
+                    text = if (isSearching) "⏳ 搜索中..." else "搜索歌词",
                     onClick = {
-                        // TODO: 调用 MusicSearchClient 搜索歌词
-                        println("TODO: 搜索歌词 songName=$songName artistName=$artistName")
+                        if (isSearching) return@GlassButton
+                        isSearching = true
+                        searchError = null
+                        scope.launch {
+                            try {
+                                val lyricText = MusicSearchClient.getLyricBySongName(
+                                    songName = songName,
+                                    artistName = artistName.ifBlank { null },
+                                )
+                                if (lyricText != null) {
+                                    onLyricsChange(lyricText)
+                                } else {
+                                    searchError = "未找到歌词"
+                                }
+                            } catch (e: Exception) {
+                                searchError = "搜索失败: ${e.message}"
+                            } finally {
+                                isSearching = false
+                            }
+                        }
                     },
-                    enabled = songName.isNotBlank()
+                    enabled = songName.isNotBlank() && !isSearching
                 )
+
+                // 错误提示
+                searchError?.let { error ->
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = error,
+                        color = GlassColors.NeonMagenta,
+                        fontSize = 12.sp
+                    )
+                }
             }
         }
 
@@ -76,7 +111,7 @@ fun LyricsStep(
                 )
                 Text(
                     text = "直接粘贴歌词，或通过上方搜索自动填入",
-                    color = Color.White.copy(alpha = 0.5f),
+                    color = GlassTheme.TextTertiary,
                     fontSize = 12.sp
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -91,7 +126,7 @@ fun LyricsStep(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "已输入 ${lyrics.lines().count { it.isNotBlank() }} 行",
-                    color = Color.White.copy(alpha = 0.4f),
+                    color = GlassTheme.TextTertiary,
                     fontSize = 11.sp
                 )
             }

@@ -50,12 +50,12 @@ fun Modifier.glassEffect(
         .clip(shape)
         // 深色底层 — 保证 Desktop JVM 无原生模糊时文字可读
         .background(GlassTheme.DarkSurface)
-        // 半透明渐变叠加 — 模拟玻璃表面
+        // 半透明渐变叠加 — 模拟玻璃表面（降低 alpha 保证文字对比度）
         .background(
             brush = Brush.linearGradient(
                 colors = listOf(
-                    backgroundColor.copy(alpha = 0.8f),
-                    backgroundColor.copy(alpha = 0.4f),
+                    backgroundColor.copy(alpha = 0.35f),
+                    backgroundColor.copy(alpha = 0.15f),
                 )
             )
         )
@@ -64,8 +64,8 @@ fun Modifier.glassEffect(
             width = borderWidth,
             brush = Brush.linearGradient(
                 colors = listOf(
-                    borderColor.copy(alpha = 0.8f),
-                    borderColor.copy(alpha = 0.2f),
+                    borderColor.copy(alpha = 0.6f),
+                    borderColor.copy(alpha = 0.15f),
                 )
             ),
             shape = shape,
@@ -93,12 +93,12 @@ fun Modifier.neonGlassEffect(
         .clip(shape)
         // 深色底层
         .background(GlassTheme.DarkSurface)
-        // 径向发光渐变 — 从中心向外扩散的霓虹光晕
+        // 径向发光渐变 — 从中心向外扩散的霓虹光晕（降低 alpha 保证文字对比度）
         .background(
             brush = Brush.radialGradient(
                 colors = listOf(
-                    glowColor.copy(alpha = 0.15f * intensity),
-                    glowColor.copy(alpha = 0.05f * intensity),
+                    glowColor.copy(alpha = 0.10f * intensity),
+                    glowColor.copy(alpha = 0.03f * intensity),
                 )
             )
         )
@@ -107,8 +107,8 @@ fun Modifier.neonGlassEffect(
             width = 2.dp,
             brush = Brush.linearGradient(
                 colors = listOf(
-                    glowColor.copy(alpha = intensity),
-                    glowColor.copy(alpha = 0.3f * intensity),
+                    glowColor.copy(alpha = 0.8f * intensity),
+                    glowColor.copy(alpha = 0.25f * intensity),
                 )
             ),
             shape = shape,
@@ -142,13 +142,13 @@ fun Modifier.liquidGlassEffect(
         .clip(shape)
         // 深色底层
         .background(GlassTheme.DarkSurface)
-        // 多层渐变叠加 — 模拟液态玻璃的流动色彩
+        // 多层渐变叠加 — 模拟液态玻璃的流动色彩（降低 alpha 保证文字对比度）
         .background(
             brush = Brush.linearGradient(
                 colors = listOf(
-                    primaryColor.copy(alpha = 0.15f),
-                    secondaryColor.copy(alpha = 0.08f),
-                    primaryColor.copy(alpha = 0.05f),
+                    primaryColor.copy(alpha = 0.10f),
+                    secondaryColor.copy(alpha = 0.05f),
+                    primaryColor.copy(alpha = 0.03f),
                 )
             )
         )
@@ -157,7 +157,7 @@ fun Modifier.liquidGlassEffect(
             drawRect(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        Color.White.copy(alpha = 0.06f),
+                        Color.White.copy(alpha = 0.04f),
                         Color.Transparent,
                     ),
                     center = Offset(size.width * 0.3f, size.height * 0.2f),
@@ -178,4 +178,49 @@ fun Modifier.liquidGlassEffect(
             ),
             shape = shape,
         )
+}
+
+
+// ── JetBrains 紫色玻璃效果 ──────────────────────────────────
+
+/**
+ * JetBrains 风格紫色透明玻璃效果修饰符。
+ *
+ * 深紫底层 + 紫色半透明渐变叠加 + 微妙紫色边框，
+ * 模拟 JetBrains IDE 侧边栏的紫色玻璃质感。
+ *
+ * @param shape 裁剪形状，默认无圆角（侧边栏全高）
+ */
+fun Modifier.jbPurpleGlassEffect(
+    shape: Shape = RoundedCornerShape(0.dp),
+): Modifier {
+    return this
+        .clip(shape)
+        // 深紫底层
+        .background(GlassTheme.JBPurpleDark)
+        // 紫色半透明渐变叠加 — 从上到下由浅紫渐变到深紫
+        .background(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    GlassTheme.JBPurpleSurface.copy(alpha = 0.12f),
+                    GlassTheme.JBPurple.copy(alpha = 0.06f),
+                    Color.Transparent,
+                )
+            )
+        )
+        // 右侧紫色边框线 — 模拟侧边栏分隔
+        .drawBehind {
+            drawLine(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        GlassTheme.JBPurpleHighlight.copy(alpha = 0.4f),
+                        GlassTheme.JBPurple.copy(alpha = 0.15f),
+                        Color.Transparent,
+                    )
+                ),
+                start = Offset(size.width, 0f),
+                end = Offset(size.width, size.height),
+                strokeWidth = 1.dp.toPx(),
+            )
+        }
 }

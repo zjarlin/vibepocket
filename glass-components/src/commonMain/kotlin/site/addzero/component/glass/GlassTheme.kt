@@ -32,6 +32,19 @@ object GlassTheme {
     /** 玻璃阴影色 */
     val GlassShadow = Color(0x20000000)
 
+    // ── JetBrains 紫色系 ────────────────────────────────────
+    /** JetBrains 主紫色 */
+    val JBPurple = Color(0xFF6B57FF)
+
+    /** JetBrains 深紫底色（侧边栏底层） */
+    val JBPurpleDark = Color(0xFF1A1525)
+
+    /** JetBrains 紫色表面（半透明叠加层） */
+    val JBPurpleSurface = Color(0xFF7B68EE)
+
+    /** JetBrains 紫色选中高亮 */
+    val JBPurpleHighlight = Color(0xFF8B78FF)
+
     // ── 霓虹强调色 ──────────────────────────────────────────
     /** 霓虹青色 */
     val NeonCyan = Color(0xFF00F0FF)
@@ -49,12 +62,12 @@ object GlassTheme {
     /** 主要文字 — 纯白 */
     val TextPrimary: Color = Color.White
 
-    /** 次要文字 — 70% 白 */
-    val TextSecondary: Color = Color.White.copy(alpha = 0.7f)
+    /** 次要文字 — 80% 白 */
+    val TextSecondary: Color = Color.White.copy(alpha = 0.8f)
 
-    /** 三级文字 — 50% 白 */
-    val TextTertiary: Color = Color.White.copy(alpha = 0.5f)
+    /** 三级文字 — 60% 白 */
+    val TextTertiary: Color = Color.White.copy(alpha = 0.6f)
 
-    /** 禁用态文字 — 30% 白 */
-    val TextDisabled: Color = Color.White.copy(alpha = 0.3f)
+    /** 禁用态文字 — 40% 白 */
+    val TextDisabled: Color = Color.White.copy(alpha = 0.4f)
 }

@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import site.addzero.component.glass.GlassColors
+import site.addzero.component.glass.GlassTheme
 import site.addzero.vibepocket.model.VibeStep
 
 @Composable
@@ -69,7 +70,7 @@ private fun StepDot(number: String, label: String, isActive: Boolean, isCurrent:
         ) {
             Text(
                 text = number,
-                color = if (isActive) Color.Black else Color.White.copy(alpha = 0.5f),
+                color = if (isActive) Color.Black else GlassTheme.TextTertiary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -77,7 +78,7 @@ private fun StepDot(number: String, label: String, isActive: Boolean, isCurrent:
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
-            color = if (isCurrent) GlassColors.NeonCyan else Color.White.copy(alpha = 0.5f),
+            color = if (isCurrent) GlassColors.NeonCyan else GlassTheme.TextTertiary,
             fontSize = 11.sp
         )
     }

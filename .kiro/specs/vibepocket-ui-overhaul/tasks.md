@@ -47,19 +47,19 @@
     - `flattenVisibleLeaves(roots: List<MenuNode>): List<MenuMetadata>` — 过滤不可见节点及其后代
     - 不在列表中的 parentRouteKey 对应节点标记为 isVirtualParent
     - _Requirements: 3.2, 3.3, 3.4, 3.5_
-  - [-]* 3.3 编写 MenuMetadata 序列化往返属性测试
+  - [x]* 3.3 编写 MenuMetadata 序列化往返属性测试
     - **Property 1: MenuMetadata JSON 序列化往返一致性**
     - 使用 Kotest property testing，随机生成 MenuMetadata，验证 `Json.decodeFromString(Json.encodeToString(metadata)) == metadata`
     - 最少 100 次迭代
     - **Validates: Requirements 4.2**
-  - [~]* 3.4 编写 MenuTreeBuilder 属性测试
+  - [x]* 3.4 编写 MenuTreeBuilder 属性测试
     - **Property 3: 树构建子节点按 sortOrder 排序**
     - **Property 4: 不可见节点从可见叶节点列表中排除**
     - **Property 5: 虚拟父节点检测**
     - 使用 Kotest property testing，随机生成 MenuMetadata 列表
     - 最少 100 次迭代
     - **Validates: Requirements 3.2, 3.3, 3.4, 7.3**
-  - [~]* 3.5 编写 MenuTreeBuilder 单元测试
+  - [x]* 3.5 编写 MenuTreeBuilder 单元测试
     - 测试空列表、单节点、循环引用抛异常、3+ 层深嵌套
     - _Requirements: 3.3, 3.4, 3.5_
   - [x] 3.6 创建默认菜单注册数据
@@ -82,12 +82,12 @@
     - `save(configs: ModuleConfigs)` — 序列化为 JSON 写入文件
     - 创建 `expect fun getPlatformConfigPath(): String` 和各平台 `actual` 实现
     - _Requirements: 5.6, 6.3, 6.4, 6.5_
-  - [~]* 5.3 编写 ApiConfig 序列化往返属性测试
+  - [x]* 5.3 编写 ApiConfig 序列化往返属性测试
     - **Property 2: ApiConfig JSON 序列化往返一致性**
     - 使用 Kotest property testing，随机生成 ApiConfig
     - 最少 100 次迭代
     - **Validates: Requirements 6.3**
-  - [~]* 5.4 编写 ConfigStore 属性测试
+  - [-]* 5.4 编写 ConfigStore 属性测试
     - **Property 6: 配置存储往返一致性**
     - **Property 7: 无效 JSON 回退到默认配置**
     - 使用 Kotest property testing，随机生成 ModuleConfigs 和无效 JSON 字符串

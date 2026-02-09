@@ -1,5 +1,6 @@
 plugins {
     id("site.addzero.conventions.compose-app")
+    alias(libs.plugins.kotlinSerialization)
 //    alias(libs.plugins.androidMultiplatformLibrary)
 }
 

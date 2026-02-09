@@ -51,7 +51,7 @@ fun App() {
 
             // 路由分发：根据 routeKey 全限定名匹配对应页面
             when (selectedRouteKey) {
-                "site.addzero.vibepocket.music.MusicVibeScreen" -> MusicVibeScreen()
+                "site.addzero.vibepocket.music.MusicVibeScreen" -> MusicVibeScreen(configStore)
                 "site.addzero.vibepocket.screens.ProgrammingScreen" -> PlaceholderScreen("💻 编程", "即将开放")
                 "site.addzero.vibepocket.screens.VideoScreen" -> PlaceholderScreen("🎬 视频", "即将开放")
                 "site.addzero.vibepocket.settings.SettingsPage" -> SettingsPage(configStore)
@@ -63,7 +63,7 @@ fun App() {
                             selectedRouteKey = fallbackRouteKey
                         }
                     }
-                    MusicVibeScreen()
+                    MusicVibeScreen(configStore)
                 }
             }
         }
