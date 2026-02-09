@@ -19,7 +19,6 @@ import site.addzero.vibepocket.model.VOCAL_GENDERS
 
 /**
  * 第二步：Vibe 参数配置
- * 对应 SunoMusicRequest 的各字段
  */
 @Composable
 fun ParamsStep(
@@ -49,26 +48,20 @@ fun ParamsStep(
 
                 FieldLabel("歌曲标题")
                 GlassTextField(
-                    value = title,
-                    onValueChange = onTitleChange,
-                    placeholder = "给你的歌起个名字",
-                    modifier = Modifier.fillMaxWidth()
+                    value = title, onValueChange = onTitleChange,
+                    placeholder = "给你的歌起个名字", modifier = Modifier.fillMaxWidth()
                 )
 
                 FieldLabel("风格标签")
                 GlassTextField(
-                    value = tags,
-                    onValueChange = onTagsChange,
-                    placeholder = "例如: pop, rock, 黑人福音, chinese",
-                    modifier = Modifier.fillMaxWidth()
+                    value = tags, onValueChange = onTagsChange,
+                    placeholder = "例如: pop, rock, 黑人福音, chinese", modifier = Modifier.fillMaxWidth()
                 )
 
                 FieldLabel("负面标签（不想要的风格）")
                 GlassTextField(
-                    value = negativeTags,
-                    onValueChange = onNegativeTagsChange,
-                    placeholder = "例如: heavy metal, screaming",
-                    modifier = Modifier.fillMaxWidth()
+                    value = negativeTags, onValueChange = onNegativeTagsChange,
+                    placeholder = "例如: heavy metal, screaming", modifier = Modifier.fillMaxWidth()
                 )
             }
         }
@@ -79,24 +72,18 @@ fun ParamsStep(
                 Text("⚙️ 模型与声音", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
 
                 FieldLabel("模型版本")
-                ChipSelector(
-                    options = MODEL_VERSIONS,
-                    selected = mv,
-                    onSelect = onMvChange
-                )
+                ChipSelector(options = MODEL_VERSIONS, selected = mv, onSelect = onMvChange)
 
                 FieldLabel("声音性别")
                 ChipSelector(
                     options = VOCAL_GENDERS.map { it.first },
                     labels = VOCAL_GENDERS.map { it.second },
-                    selected = vocalGender,
-                    onSelect = onVocalGenderChange
+                    selected = vocalGender, onSelect = onVocalGenderChange
                 )
 
                 // 纯音乐开关
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
                         .background(Color.White.copy(alpha = 0.05f))
                         .clickable { onMakeInstrumentalChange(!makeInstrumental) }
@@ -106,8 +93,7 @@ fun ParamsStep(
                 ) {
                     Text("纯音乐（无人声）", color = Color.White, fontSize = 14.sp)
                     Box(
-                        modifier = Modifier
-                            .size(24.dp)
+                        modifier = Modifier.size(24.dp)
                             .clip(RoundedCornerShape(4.dp))
                             .background(
                                 if (makeInstrumental) GlassColors.NeonCyan
@@ -123,14 +109,13 @@ fun ParamsStep(
             }
         }
 
-        // GPT 描述（高级）
+        // GPT 描述
         GlassCard(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("💡 AI 灵感描述（可选）", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Text(
                     text = "用自然语言描述你想要的音乐风格，AI 会据此生成",
-                    color = Color.White.copy(alpha = 0.5f),
-                    fontSize = 12.sp
+                    color = Color.White.copy(alpha = 0.5f), fontSize = 12.sp
                 )
                 GlassTextArea(
                     value = gptDescriptionPrompt,
@@ -145,17 +130,9 @@ fun ParamsStep(
 
 @Composable
 private fun FieldLabel(text: String) {
-    Text(
-        text = text,
-        color = Color.White.copy(alpha = 0.7f),
-        fontSize = 12.sp,
-        fontWeight = FontWeight.Medium
-    )
+    Text(text = text, color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp, fontWeight = FontWeight.Medium)
 }
 
-/**
- * Chip 选择器
- */
 @Composable
 fun ChipSelector(
     options: List<String>,
@@ -163,10 +140,7 @@ fun ChipSelector(
     onSelect: (String) -> Unit,
     labels: List<String>? = null
 ) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         options.forEachIndexed { index, option ->
             val isSelected = option == selected
             val displayLabel = labels?.getOrNull(index) ?: option

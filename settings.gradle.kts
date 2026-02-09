@@ -9,3 +9,5 @@ plugins {
 //    id("io.gitee.zjarlin.auto-modules") version "0.0.608"
 }
 
+include(":glass-components")
+

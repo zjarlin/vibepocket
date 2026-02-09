@@ -12,7 +12,6 @@ import site.addzero.component.glass.*
 
 /**
  * 第一步：确认歌词
- * 可以手动输入歌词，也可以通过歌名/歌手搜索获取
  */
 @Composable
 fun LyricsStep(
@@ -59,8 +58,6 @@ fun LyricsStep(
                     text = "搜索歌词",
                     onClick = {
                         // TODO: 调用 MusicSearchClient 搜索歌词
-                        // val lyric = musicSearchClient.getLyricBySongName(songName, artistName)
-                        // onLyricsChange(lyric?.lrc?.lyric ?: "")
                         println("TODO: 搜索歌词 songName=$songName artistName=$artistName")
                     },
                     enabled = songName.isNotBlank()

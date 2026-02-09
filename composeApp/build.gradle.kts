@@ -4,6 +4,14 @@ plugins {
 }
 
 kotlin {
+    sourceSets {
+        commonTest.dependencies {
+            implementation(libs.kotest.property)
+            implementation(libs.kotest.assertions.core)
+            implementation(libs.kotlinx.coroutines.test)
+        }
+    }
+
     dependencies {
         implementation("io.github.vinceglb:filekit-core:0.12.0")
         implementation("io.github.vinceglb:filekit-dialogs:0.12.0")
@@ -13,7 +21,7 @@ kotlin {
 //       implementation("site.addzero:addzero-route-core:2025.09.29")
 //        implementation("site.addzero:addzero-route-processor:2025.09.29")
 
-        implementation("site.addzero:compose-native-component-glass:2025.12.22")
+        implementation(projects.glassComponents)
         implementation("io.ktor:ktor-client-core:${libs.versions.ktor.get()}")
         implementation("io.ktor:ktor-client-cio:${libs.versions.ktor.get()}")
         implementation("io.ktor:ktor-client-content-negotiation:${libs.versions.ktor.get()}")

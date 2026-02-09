@@ -18,10 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import site.addzero.component.glass.*
 
-/**
- * 任务进度面板（右侧）
- * 显示提交的 JSON 和任务状态
- */
 @Composable
 fun TaskProgressPanel(
     submittedJson: String?,
@@ -45,17 +41,14 @@ fun TaskProgressPanel(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 状态卡片
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 GlassStatCard(
-                    value = "1",
-                    label = "任务数",
+                    value = "1", label = "任务数",
                     modifier = Modifier.width(100.dp).height(80.dp),
                     glowColor = GlassColors.NeonCyan
                 )
                 GlassStatCard(
-                    value = taskStatus.take(4),
-                    label = "状态",
+                    value = taskStatus.take(4), label = "状态",
                     modifier = Modifier.width(100.dp).height(80.dp),
                     glowColor = GlassColors.NeonPurple
                 )
@@ -63,7 +56,6 @@ fun TaskProgressPanel(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 任务状态
             GlassInfoCard(
                 title = "当前状态",
                 content = taskStatus,
@@ -72,13 +64,7 @@ fun TaskProgressPanel(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // TODO: 实际任务完成后显示音频链接
-            Text(
-                text = "🎵 生成结果",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+            Text("🎵 生成结果", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(8.dp))
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Box(
@@ -95,13 +81,7 @@ fun TaskProgressPanel(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 请求 JSON 预览
-            Text(
-                text = "📋 请求 JSON",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+            Text("📋 请求 JSON", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(8.dp))
 
             submittedJson?.let { json ->
@@ -109,7 +89,7 @@ fun TaskProgressPanel(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color.Black.copy(alpha = 0.4f))
+                        .background(Color.Black.copy(alpha = 0.6f))
                         .padding(12.dp)
                         .horizontalScroll(rememberScrollState())
                 ) {
