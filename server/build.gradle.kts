@@ -1,5 +1,7 @@
 plugins {
     id("site.addzero.conventions.server-app")
+    alias(libs.plugins.koin.compiler)
+//    id("io.insert-koin.compiler.plugin")
 }
 
 group = "site.addzero.vibepocket"

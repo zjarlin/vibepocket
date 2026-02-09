@@ -11,7 +11,7 @@ plugins {
 kotlin {
     sourceSets {
         commonTest.dependencies {
-            implementation(libs.kotlin.test)
+            implementation(libs.org.jetbrains.kotlin.kotlin.test)
         }
     }
     sourceSets.all {

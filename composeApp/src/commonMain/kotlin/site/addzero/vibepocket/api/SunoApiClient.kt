@@ -1,10 +1,8 @@
 package site.addzero.vibepocket.api
 
+import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.date.*
 import kotlinx.coroutines.delay
@@ -13,9 +11,7 @@ import site.addzero.vibepocket.model.SunoMusicRequest
 import site.addzero.vibepocket.model.SunoTask
 
 /**
- * Suno API 客户端（Ktor 实现，commonMain 全平台可用）
- *
- * 对接 VectorEngine Suno API，提供音乐生成、任务查询、轮询等待等功能。
+ * Suno API 客户端（基于 Ktorfit）
  */
 class SunoApiClient(
     private val apiToken: String,
@@ -30,53 +26,35 @@ class SunoApiClient(
         }
     }
 
-    /**
-     * 提交音乐生成任务
-     * @return 任务 ID
-     */
+    private val api: SunoApi = Ktorfit.Builder()
+        .baseUrl(baseUrl.trimEnd('/') + "/")
+        .httpClient(client)
+        .build()
+        .createSunoApi()
+
+    private val authHeader get() = "Bearer $apiToken"
+
+    /** 提交音乐生成任务，返回任务 ID */
     suspend fun generateMusic(request: SunoMusicRequest): String {
-        val response = client.post("$baseUrl/suno/submit/music") {
-            contentType(ContentType.Application.Json)
-            bearerAuth(apiToken)
-            setBody(request)
-        }
-        val result = response.body<ApiResult<String>>()
-        return result.getOrThrow()
+        return api.generateMusic(request, authHeader).getOrThrow()
     }
 
-    /**
-     * 查询单个任务状态
-     */
+    /** 查询单个任务状态 */
     suspend fun fetchTask(taskId: String): SunoTask? {
-        val response = client.get("$baseUrl/suno/fetch/$taskId") {
-            bearerAuth(apiToken)
-            accept(ContentType.Application.Json)
-        }
-        val result = response.body<ApiResult<SunoTask>>()
-        return result.getOrNull()
+        return api.fetchTask(taskId, authHeader).getOrNull()
     }
 
-    /**
-     * 轮询等待任务完成
-     *
-     * @param taskId 任务 ID
-     * @param maxWaitMs 最长等待毫秒数，默认 10 分钟
-     * @param pollIntervalMs 轮询间隔毫秒数，默认 10 秒
-     * @param onStatusUpdate 状态更新回调
-     * @return 完成的任务
-     */
+    /** 轮询等待任务完成 */
     suspend fun waitForCompletion(
         taskId: String,
         maxWaitMs: Long = 600_000L,
         pollIntervalMs: Long = 10_000L,
         onStatusUpdate: ((SunoTask?) -> Unit)? = null,
     ): SunoTask {
-        val startTime = currentTimeMillis()
-
-        while (currentTimeMillis() - startTime < maxWaitMs) {
+        val startTime = getTimeMillis()
+        while (getTimeMillis() - startTime < maxWaitMs) {
             val task = fetchTask(taskId)
             onStatusUpdate?.invoke(task)
-
             when {
                 task?.isComplete == true -> return task
                 task?.isError == true -> throw RuntimeException(
@@ -88,10 +66,5 @@ class SunoApiClient(
         throw RuntimeException("任务超时，已等待 ${maxWaitMs / 1000} 秒")
     }
 
-    fun close() {
-        client.close()
-    }
+    fun close() = client.close()
 }
-
-/** 跨平台获取当前时间戳 */
-private fun currentTimeMillis(): Long = getTimeMillis()

@@ -3,6 +3,8 @@ import org.gradle.accessors.dm.LibrariesForLibs
 
 import org.gradle.declarative.dsl.schema.FqName.Empty.packageName
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.reload.core.Environment.Companion.application
+import org.jetbrains.compose.reload.core.HotReloadEnvironment.mainClass
 
 val libs = the<LibrariesForLibs>()
 
@@ -15,7 +17,7 @@ kotlin {
     sourceSets {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.swing)
         }
     }
 }

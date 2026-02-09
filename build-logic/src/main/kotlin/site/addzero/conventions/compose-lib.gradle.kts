@@ -12,15 +12,15 @@ val libs = the<LibrariesForLibs>()
 val pkg = "site.addzero"
 kotlin {
     dependencies {
-        implementation(libs.compose.runtime)
-        implementation(libs.compose.foundation)
-        implementation(libs.compose.material3)
-        implementation(libs.compose.ui)
-        implementation(libs.compose.components.resources)
-        implementation(libs.compose.uiToolingPreview)
-        implementation(libs.androidx.lifecycle.viewmodelCompose)
-        implementation(libs.androidx.lifecycle.runtimeCompose)
-        implementation(libs.material.icons.extended)
+        implementation(libs.org.jetbrains.compose.runtime.runtime)
+        implementation(libs.org.jetbrains.compose.foundation.foundation)
+        implementation(libs.org.jetbrains.compose.material3.material3)
+        implementation(libs.org.jetbrains.compose.ui.ui)
+        implementation(libs.org.jetbrains.compose.components.components.resources)
+        implementation(libs.org.jetbrains.compose.ui.ui.tooling.preview)
+        implementation(libs.org.jetbrains.androidx.lifecycle.lifecycle.viewmodel.compose)
+        implementation(libs.org.jetbrains.androidx.lifecycle.lifecycle.runtime.compose)
+        implementation(libs.org.jetbrains.compose.material.material.icons.extended)
 
     }
 

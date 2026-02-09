@@ -1,5 +1,6 @@
 package site.addzero.conventions
 
+import gradle.kotlin.dsl.accessors._8260d7c1f67b2e79b2d9c6678d49a651.android
 import org.gradle.accessors.dm.LibrariesForLibs
 
 plugins {
@@ -58,17 +59,17 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.compose.uiToolingPreview)
+    implementation(libs.androidx.activity.activity.compose)
+    implementation(libs.org.jetbrains.compose.ui.ui.tooling.preview)
 
 //    implementation("androidx.compose.material3:material3:1.4.0")
 //    implementation(compose.preview)
     // implementation(libs.androidx.room.sqlite.wrapper)
 //    implementation("io.insert-koin:koin-android:3.2.0")
-//    implementation(libs.androidx.core.ktx)
-//    implementation(libs.androidx.appcompat)
-//    implementation(libs.material)
-//    testImplementation(libs.junit)
-//    androidTestImplementation(libs.androidx.testExt.junit)
-//    androidTestImplementation(libs.androidx.espresso.core)
+//    implementation(libs.androidx.core.core.ktx)
+//    implementation(libs.androidx.appcompat.appcompat)
+//    implementation(libs.org.jetbrains.compose.material.material.icons.extended)
+//    testImplementation(libs.junit.junit)
+//    androidTestImplementation(libs.androidx.test.ext.junit)
+//    androidTestImplementation(libs.androidx.test.espresso.espresso.core)
 }

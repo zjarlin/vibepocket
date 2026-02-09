@@ -2,16 +2,16 @@
 
 package site.addzero.conventions
 
-import gradle.kotlin.dsl.accessors._d91e95f7e6eb91f674b365c3c524c1b9.ksp
-import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.accessors.dm.LibrariesForLibs
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
-    id("com.google.devtools.ksp")
+    id("io.insert-koin.compiler.plugin")
+
     application
 }
 
-val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+val libs = the<LibrariesForLibs>()
 
 application {
     val isDevelopment: Boolean = project.ext.has("development")
@@ -19,14 +19,13 @@ application {
 }
 
 dependencies {
-    implementation(libs.findLibrary("koin-annotations").get())
-    implementation(libs.findLibrary("koin-ktor").get())
-    implementation(libs.findLibrary("koin-loggerSlf4j").get())
-    implementation(libs.findLibrary("logback").get())
-    implementation(libs.findLibrary("ktor-serverCore").get())
-    implementation(libs.findLibrary("ktor-serverNetty").get())
-    implementation(libs.findLibrary("ktor-serverStatusPages").get())
-    ksp(libs.findLibrary("koin-ksp-compiler").get())
-    testImplementation(libs.findLibrary("ktor-serverTestHost").get())
-    testImplementation(libs.findLibrary("kotlin-testJunit").get())
+    implementation(libs.io.insert.koin.koin.annotations)
+    implementation(libs.io.insert.koin.koin.ktor)
+    implementation(libs.io.insert.koin.koin.logger.slf4j)
+    implementation(libs.ch.qos.logback.logback.classic)
+    implementation(libs.io.ktor.ktor.server.core.jvm)
+    implementation(libs.io.ktor.ktor.server.netty.jvm)
+    implementation(libs.io.ktor.ktor.server.status.pages)
+    testImplementation(libs.io.ktor.ktor.server.test.host.jvm)
+    testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit)
 }
