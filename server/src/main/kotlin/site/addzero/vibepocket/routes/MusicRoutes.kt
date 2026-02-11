@@ -3,6 +3,7 @@ package site.addzero.vibepocket.routes
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import site.addzero.ioc.annotation.Bean
 import site.addzero.network.call.music.MusicSearchClient
 import site.addzero.network.call.music.model.MusicSearchRequest
 import site.addzero.vibepocket.dto.SearchRequest
@@ -10,6 +11,7 @@ import site.addzero.vibepocket.dto.SearchRequest
 /**
  * 音乐搜索相关路由（网易云等）
  */
+@Bean
 fun Route.musicRoutes() {
     route("/api/music") {
 

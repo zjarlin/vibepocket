@@ -1,8 +1,7 @@
-package site.addzero.vibepocket.plugins
+package site.addzero.vibepocket.di
 
 import org.babyfish.jimmer.sql.dialect.SQLiteDialect
 import org.babyfish.jimmer.sql.kt.KSqlClient
-import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.newKSqlClient
 import org.babyfish.jimmer.sql.runtime.ConnectionManager
 import org.babyfish.jimmer.sql.runtime.DefaultDatabaseNamingStrategy
@@ -12,9 +11,6 @@ import org.koin.core.annotation.Single
 import org.koin.mp.KoinPlatform.getKoin
 import org.sqlite.SQLiteDataSource
 import site.addzero.vibepocket.jimmer.interceptor.BaseEntityDraftInterceptor
-import site.addzero.vibepocket.model.AppConfig
-import site.addzero.vibepocket.model.key
-import site.addzero.vibepocket.model.value
 import javax.sql.DataSource
 
 val sqlClient = getKoin().get<KSqlClient>()
@@ -48,7 +44,6 @@ class DatabaseModule {
             }
         }
 }
-
 
 
 /**
@@ -100,6 +95,44 @@ fun initDatabase(dataSource: DataSource) {
                     enabled INTEGER NOT NULL DEFAULT 1,
                     description TEXT,
                     UNIQUE(owner, name)
+                )
+                """.trimIndent()
+            )
+            stmt.executeUpdate(
+                """
+                CREATE TABLE IF NOT EXISTS favorite_track (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    track_id TEXT NOT NULL UNIQUE,
+                    task_id TEXT NOT NULL,
+                    audio_url TEXT,
+                    title TEXT,
+                    tags TEXT,
+                    image_url TEXT,
+                    duration REAL,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+                )
+                """.trimIndent()
+            )
+            stmt.executeUpdate(
+                """
+                CREATE TABLE IF NOT EXISTS music_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    task_id TEXT NOT NULL UNIQUE,
+                    type TEXT NOT NULL DEFAULT 'generate',
+                    status TEXT NOT NULL,
+                    tracks_json TEXT NOT NULL DEFAULT '[]',
+                    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+                )
+                """.trimIndent()
+            )
+            stmt.executeUpdate(
+                """
+                CREATE TABLE IF NOT EXISTS persona_record (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    persona_id TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
                 )
                 """.trimIndent()
             )

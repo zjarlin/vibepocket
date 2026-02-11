@@ -11,17 +11,27 @@ plugins {
 ktorfit {
     compilerPluginVersion.set("2.3.3")
 }
+dependencies {
+    kspCommonMainMetadata(libs.ioc.processor)
+}
 
 kotlin {
     sourceSets {
+
         commonTest.dependencies {
             implementation(libs.io.kotest.kotest.property)
             implementation(libs.io.kotest.kotest.assertions.core)
             implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
         }
+        jvmMain.dependencies {
+            // 桌面端内嵌 Ktor 后端，无需单独部署 server
+            implementation(projects.server)
+        }
     }
 
     dependencies {
+        implementation(libs.ioc.core)
+
         implementation(libs.filekit.core)
         implementation(libs.filekit.dialogs)
         implementation(libs.filekit.dialogs.compose)
@@ -38,9 +48,10 @@ kotlin {
         implementation(libs.io.ktor.ktor.serialization.kotlinx.json)
 
         implementation(libs.io.github.khubaibkhan4.mediaplayer.kmp)
-        implementation(libs.gadulka)
-        implementation(libs.org.jetbrains.androidx.navigation3.navigation3.ui)          // nav3 1.1.0-alpha02 拉入 compose 1.11-alpha / skiko 0.9.40，与当前 compose 1.10.0 / skiko 0.9.37.3 冲突
-        implementation(libs.org.jetbrains.androidx.lifecycle.lifecycle.viewmodel.navigation3) // 等 compose 升级到 1.11 稳定版再启用
+        implementation(libs.kotlin.gadulka)
+
+        implementation(libs.org.jetbrains.androidx.navigation3.navigation3.ui)
+        implementation(libs.org.jetbrains.androidx.lifecycle.lifecycle.viewmodel.navigation3)
 
 //        implementation(projects.shared)
     }

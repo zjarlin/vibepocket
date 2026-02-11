@@ -12,6 +12,7 @@ import org.babyfish.jimmer.sql.dialect.SQLiteDialect
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.newKSqlClient
 import org.sqlite.SQLiteDataSource
+import site.addzero.vibepocket.di.initDatabase
 import site.addzero.vibepocket.plugins.*
 import javax.sql.DataSource
 import kotlin.test.*

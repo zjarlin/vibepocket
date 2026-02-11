@@ -13,20 +13,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.addzero.component.glass.GlassButton
-import site.addzero.component.glass.GlassCard
-import site.addzero.component.glass.GlassColors
-import site.addzero.component.glass.GlassFeatureCard
-import site.addzero.component.glass.GlassInfoCard
-import site.addzero.component.glass.GlassSearchField
-import site.addzero.component.glass.GlassStatCard
-import site.addzero.component.glass.GlassTextArea
-import site.addzero.component.glass.GlassTextField
-import site.addzero.component.glass.LiquidGlassButton
-import site.addzero.component.glass.LiquidGlassCard
-import site.addzero.component.glass.NeonGlassButton
-import site.addzero.component.glass.NeonGlassCard
-    val color = GlassColors.DarkBackground
+import site.addzero.component.glass.*
+
+val color = GlassColors.DarkBackground
 
 /**
  * 玻璃按钮预览

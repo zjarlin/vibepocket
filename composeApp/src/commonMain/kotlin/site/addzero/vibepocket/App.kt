@@ -14,69 +14,92 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.ui.NavDisplay
 import site.addzero.component.glass.GlassTheme
+import site.addzero.vibepocket.auth.WelcomePage
+import site.addzero.vibepocket.music.GadulkaPlayerDemo
 import site.addzero.vibepocket.music.MusicVibeScreen
 import site.addzero.vibepocket.navigation.MenuNodeSidebar
 import site.addzero.vibepocket.navigation.MenuTreeBuilder
+import site.addzero.vibepocket.navigation.RouteKey
 import site.addzero.vibepocket.navigation.defaultMenuItems
-import site.addzero.vibepocket.settings.ConfigStore
 import site.addzero.vibepocket.settings.SettingsPage
-import site.addzero.vibepocket.settings.getPlatformConfigPath
+
+private val WELCOME_ROUTE = RouteKey("site.addzero.vibepocket.auth.WelcomePage")
 
 @Composable
 @Preview
 fun App() {
-
-    // 从默认菜单元数据构建菜单树
     val menuTree = remember { MenuTreeBuilder.buildTree(defaultMenuItems) }
-    // 扁平化为可见叶节点列表，用于确定默认路由
     val visibleLeaves = remember { MenuTreeBuilder.flattenVisibleLeaves(menuTree) }
-    // 当前选中的路由 key（全限定名），默认选中第一个可见叶节点
-    var selectedRouteKey by remember { mutableStateOf(visibleLeaves.firstOrNull()?.routeKey ?: "") }
-    // 配置持久化存储
-    val configStore = remember { ConfigStore(getPlatformConfigPath()) }
+    val homeRoute = RouteKey(visibleLeaves.firstOrNull()?.routeKey ?: "")
+
+    var isSetupDone by remember { mutableStateOf(false) }
+    val backStack = remember { mutableStateListOf(WELCOME_ROUTE) }
+
+    // API 配置（欢迎页填写后传入，后续会改成从 DB 读取）
+    var sunoToken by remember { mutableStateOf("") }
+    var sunoBaseUrl by remember { mutableStateOf("https://api.sunoapi.org/api/v1") }
 
     MaterialTheme {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(GlassTheme.DarkBackground)
-        ) {
-            // 菜单元数据驱动的侧边栏
-            MenuNodeSidebar(
-                menuTree = menuTree,
-                selectedRouteKey = selectedRouteKey,
-                onLeafClick = { node -> selectedRouteKey = node.metadata.routeKey },
-                title = "Vibepocket",
-            )
-
-            // 路由分发：根据 routeKey 全限定名匹配对应页面
-            when (selectedRouteKey) {
-                "site.addzero.vibepocket.music.MusicVibeScreen" -> MusicVibeScreen(configStore)
-                "site.addzero.vibepocket.screens.ImageScreen" -> PlaceholderScreen("🖼️ 图片", "即将开放")
-                "site.addzero.vibepocket.screens.VideoScreen" -> PlaceholderScreen("🎬 视频", "即将开放")
-                "site.addzero.vibepocket.settings.SettingsPage" -> SettingsPage(configStore)
-                else -> {
-                    // 未匹配时回退到第一个可见叶节点
-                    val fallbackRouteKey = visibleLeaves.firstOrNull()?.routeKey
-                    if (fallbackRouteKey != null && fallbackRouteKey != selectedRouteKey) {
-                        LaunchedEffect(Unit) {
-                            selectedRouteKey = fallbackRouteKey
-                        }
+        if (!isSetupDone) {
+            // 欢迎页全屏，不显示侧边栏
+            NavDisplay(
+                backStack = backStack,
+                onBack = {},
+                entryProvider = { routeKey ->
+                    NavEntry(routeKey) {
+                        WelcomePage(
+                            onEnter = { token, url ->
+                                sunoToken = token
+                                sunoBaseUrl = url
+                                backStack.clear()
+                                backStack.add(homeRoute)
+                                isSetupDone = true
+                            },
+                        )
                     }
-                    MusicVibeScreen(configStore)
-                }
+                },
+            )
+        } else {
+            // 主界面：侧边栏 + NavDisplay
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(GlassTheme.DarkBackground)
+            ) {
+                MenuNodeSidebar(
+                    menuTree = menuTree,
+                    selectedRouteKey = backStack.lastOrNull()?.key ?: "",
+                    onLeafClick = { node ->
+                        backStack.clear()
+                        backStack.add(RouteKey(node.metadata.routeKey))
+                    },
+                    title = "Vibepocket",
+                )
+
+                NavDisplay(
+                    backStack = backStack,
+                    onBack = { backStack.removeLastOrNull() },
+                    entryProvider = { routeKey ->
+                        NavEntry(routeKey) {
+                            when (routeKey.key) {
+                                "site.addzero.vibepocket.music.MusicVibeScreen" -> MusicVibeScreen()
+                                "site.addzero.vibepocket.music.GadulkaPlayerDemo" -> GadulkaPlayerDemo()
+                                "site.addzero.vibepocket.screens.ImageScreen" -> PlaceholderScreen("🖼️ 图片", "即将开放")
+                                "site.addzero.vibepocket.screens.VideoScreen" -> PlaceholderScreen("🎬 视频", "即将开放")
+                                "site.addzero.vibepocket.settings.SettingsPage" -> SettingsPage()
+                                else -> PlaceholderScreen("❓", "未知页面")
+                            }
+                        }
+                    },
+                )
             }
         }
     }
 }
 
-/**
- * 占位页面 — 用于尚未实现的功能模块。
- *
- * @param icon 模块图标（emoji）
- * @param subtitle 占位提示文字
- */
 @Composable
 private fun PlaceholderScreen(icon: String, subtitle: String) {
     Box(
@@ -85,13 +108,8 @@ private fun PlaceholderScreen(icon: String, subtitle: String) {
             .background(GlassTheme.DarkBackground),
         contentAlignment = Alignment.Center,
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = icon,
-                fontSize = 48.sp,
-            )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = icon, fontSize = 48.sp)
             Text(
                 text = subtitle,
                 color = Color.White.copy(alpha = 0.5f),

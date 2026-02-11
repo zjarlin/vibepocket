@@ -36,4 +36,10 @@ dependencies {
     implementation(libs.io.ktor.ktor.server.swagger)
     implementation("site.addzero:tool-api-music-search:2026.01.20")
     implementation("site.addzero:tool-api-suno:2026.02.06")
+
+    // Kotest property testing & assertions for server-side property tests
+    testImplementation(libs.io.kotest.kotest.property)
+    testImplementation(libs.io.kotest.kotest.assertions.core)
+    testImplementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
+    testImplementation("io.insert-koin:koin-test:4.2.0-RC1")
 }

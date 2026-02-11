@@ -15,14 +15,40 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
 
-/**
- * 设置页面的 Tab 定义。
- *
- * @property title Tab 显示名称
- * @property icon Tab 图标（emoji）
- */
+@Serializable
+private data class ConfigResp(val key: String, val value: String?)
+
+@Serializable
+private data class ConfigEntry(val key: String, val value: String, val description: String? = null)
+
+private val configHttpClient = HttpClient {
+    install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+}
+
+private suspend fun fetchConfig(key: String): String? = try {
+    configHttpClient.get("http://localhost:8080/api/config/$key").body<ConfigResp>().value
+} catch (_: Exception) { null }
+
+private suspend fun saveConfig(key: String, value: String, desc: String? = null) {
+    try {
+        configHttpClient.put("http://localhost:8080/api/config") {
+            contentType(ContentType.Application.Json)
+            setBody(ConfigEntry(key, value, desc))
+        }
+    } catch (_: Exception) { }
+}
+
 private enum class SettingsTab(val title: String, val icon: String) {
     MUSIC("音乐", "🎵"),
     IMAGE("图片", "🖼️"),
@@ -30,22 +56,24 @@ private enum class SettingsTab(val title: String, val icon: String) {
 }
 
 /**
- * 设置页面 — 按模块分 Tab 管理各 AI 服务的 API 配置。
- *
- * 包含三个 Tab：音乐、图片、视频。
- * - 音乐 Tab：展示 Suno API Token、Suno API Base URL、Music Search API URL 的输入框和保存按钮
- * - 图片 Tab：占位提示，预留未来 AI 图片生成配置
- * - 视频 Tab：占位提示，预留未来视频生成 API 配置
- *
- * @param configStore 配置持久化存储实例，用于加载和保存配置
+ * 设置页面 — 从内嵌 server DB 读写配置，不再依赖 ConfigStore。
  */
 @Composable
-fun SettingsPage(configStore: ConfigStore) {
-    // 从 ConfigStore 加载初始配置
-    var moduleConfigs by remember {
-        mutableStateOf(configStore.load())
-    }
+fun SettingsPage() {
+    val scope = rememberCoroutineScope()
     var selectedTab by remember { mutableStateOf(SettingsTab.MUSIC) }
+
+    // 音乐模块配置
+    var sunoToken by remember { mutableStateOf("") }
+    var sunoBaseUrl by remember { mutableStateOf("https://api.sunoapi.org/api/v1") }
+    var loaded by remember { mutableStateOf(false) }
+
+    // 启动时从 server 加载
+    LaunchedEffect(Unit) {
+        sunoToken = fetchConfig("suno_api_token") ?: ""
+        sunoBaseUrl = fetchConfig("suno_api_base_url") ?: "https://api.sunoapi.org/api/v1"
+        loaded = true
+    }
 
     Box(
         modifier = Modifier
@@ -54,106 +82,62 @@ fun SettingsPage(configStore: ConfigStore) {
             .padding(24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // 页面标题
             Text(
                 text = "⚙️ 设置",
                 color = GlassTheme.TextPrimary,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
             )
-
+            Spacer(modifier = Modifier.height(20.dp))
+            SettingsTabBar(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Tab 栏
-            SettingsTabBar(
-                selectedTab = selectedTab,
-                onTabSelected = { selectedTab = it },
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Tab 内容区
             Box(modifier = Modifier.weight(1f)) {
                 when (selectedTab) {
                     SettingsTab.MUSIC -> {
-                        ApiConfigEditor(
-                            configs = moduleConfigs.music,
-                            onConfigChange = { index, updatedConfig ->
-                                moduleConfigs = moduleConfigs.copy(
-                                    music = moduleConfigs.music.toMutableList().apply {
-                                        this[index] = updatedConfig
+                        if (!loaded) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("加载中...", color = GlassTheme.TextSecondary)
+                            }
+                        } else {
+                            MusicConfigEditor(
+                                sunoToken = sunoToken,
+                                onTokenChange = { sunoToken = it },
+                                sunoBaseUrl = sunoBaseUrl,
+                                onBaseUrlChange = { sunoBaseUrl = it },
+                                onSave = {
+                                    scope.launch {
+                                        saveConfig("suno_api_token", sunoToken, "Suno API Token")
+                                        saveConfig("suno_api_base_url", sunoBaseUrl, "Suno API Base URL")
                                     }
-                                )
-                            },
-                            onSave = { configStore.save(moduleConfigs) },
-                        )
+                                },
+                            )
+                        }
                     }
-
-                    SettingsTab.IMAGE -> {
-                        PlaceholderTab(
-                            icon = "🖼️",
-                            title = "图片模块",
-                            message = "AI 图片生成配置即将开放，敬请期待。",
-                        )
-                    }
-
-                    SettingsTab.VIDEO -> {
-                        PlaceholderTab(
-                            icon = "🎬",
-                            title = "视频模块",
-                            message = "视频生成 API 配置即将开放，敬请期待。",
-                        )
-                    }
+                    SettingsTab.IMAGE -> PlaceholderTab("🖼️", "图片模块", "AI 图片生成配置即将开放，敬请期待。")
+                    SettingsTab.VIDEO -> PlaceholderTab("🎬", "视频模块", "视频生成 API 配置即将开放，敬请期待。")
                 }
             }
         }
     }
 }
 
-/**
- * 设置页面的 Tab 栏。
- *
- * 使用 GlassCard 作为容器，内部水平排列各 Tab 按钮。
- * 选中的 Tab 使用霓虹青色高亮显示。
- *
- * @param selectedTab 当前选中的 Tab
- * @param onTabSelected Tab 选中回调
- */
 @Composable
-private fun SettingsTabBar(
-    selectedTab: SettingsTab,
-    onTabSelected: (SettingsTab) -> Unit,
-) {
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-    ) {
+private fun SettingsTabBar(selectedTab: SettingsTab, onTabSelected: (SettingsTab) -> Unit) {
+    GlassCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
+            modifier = Modifier.fillMaxWidth().padding(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             SettingsTab.entries.forEach { tab ->
                 val isSelected = tab == selectedTab
                 val interactionSource = remember { MutableInteractionSource() }
-
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(8.dp))
-                        .then(
-                            if (isSelected) {
-                                Modifier.background(GlassTheme.NeonCyan.copy(alpha = 0.15f))
-                            } else {
-                                Modifier
-                            }
-                        )
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = null,
-                            onClick = { onTabSelected(tab) },
-                        )
+                        .then(if (isSelected) Modifier.background(GlassTheme.NeonCyan.copy(alpha = 0.15f)) else Modifier)
+                        .clickable(interactionSource = interactionSource, indication = null) { onTabSelected(tab) }
                         .padding(vertical = 10.dp),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -169,151 +153,62 @@ private fun SettingsTabBar(
     }
 }
 
-/**
- * API 配置编辑器 — 展示一组 API 配置输入框和保存按钮。
- *
- * 每个 [ApiConfig] 渲染为一个带标签的 [GlassTextField] 输入框。
- * 根据 [ApiConfig.label] 判断输入框类型：
- * - 包含 "Token" 的配置项：显示 key 字段的输入框
- * - 包含 "URL" 的配置项：显示 baseUrl 字段的输入框
- * - 其他：显示 key 字段的输入框
- *
- * @param configs 当前模块的 API 配置列表
- * @param onConfigChange 配置变更回调，参数为 (索引, 更新后的配置)
- * @param onSave 保存回调
- */
 @Composable
-fun ApiConfigEditor(
-    configs: List<ApiConfig>,
-    onConfigChange: (index: Int, ApiConfig) -> Unit,
+private fun MusicConfigEditor(
+    sunoToken: String,
+    onTokenChange: (String) -> Unit,
+    sunoBaseUrl: String,
+    onBaseUrlChange: (String) -> Unit,
     onSave: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        configs.forEachIndexed { index, config ->
-            ApiConfigField(
-                config = config,
-                onConfigChange = { updatedConfig ->
-                    onConfigChange(index, updatedConfig)
-                },
-            )
-        }
-
+        ConfigField(label = "Suno API Token", value = sunoToken, onValueChange = onTokenChange, placeholder = "sk-...")
+        ConfigField(label = "Suno API Base URL", value = sunoBaseUrl, onValueChange = onBaseUrlChange, placeholder = "https://api.sunoapi.org/api/v1")
         Spacer(modifier = Modifier.height(8.dp))
-
-        // 保存按钮
         NeonGlassButton(
             text = "💾 保存配置",
             onClick = onSave,
             modifier = Modifier.fillMaxWidth(),
             glowColor = GlassTheme.NeonCyan,
         )
-
-        // 底部留白
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
-/**
- * 单个 API 配置字段 — 根据 label 类型渲染对应的输入框。
- *
- * @param config 当前配置项
- * @param onConfigChange 配置变更回调
- */
 @Composable
-private fun ApiConfigField(
-    config: ApiConfig,
-    onConfigChange: (ApiConfig) -> Unit,
-) {
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-    ) {
+private fun ConfigField(label: String, value: String, onValueChange: (String) -> Unit, placeholder: String) {
+    GlassCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            // 标签
-            Text(
-                text = config.label,
-                color = GlassTheme.TextSecondary,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium,
-            )
-
-            // 根据 label 判断编辑 key 还是 baseUrl
-            val isUrlField = config.label.contains("URL", ignoreCase = true)
-
+            Text(label, color = GlassTheme.TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
             GlassTextField(
-                value = if (isUrlField) config.baseUrl else config.key,
-                onValueChange = { newValue ->
-                    onConfigChange(
-                        if (isUrlField) {
-                            config.copy(baseUrl = newValue)
-                        } else {
-                            config.copy(key = newValue)
-                        }
-                    )
-                },
+                value = value,
+                onValueChange = onValueChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = if (isUrlField) "请输入 URL..." else "请输入 Token / Key...",
+                placeholder = placeholder,
                 shape = RoundedCornerShape(8.dp),
             )
         }
     }
 }
 
-/**
- * 占位 Tab 内容 — 用于图片和视频模块的占位提示。
- *
- * @param icon 模块图标（emoji）
- * @param title 模块标题
- * @param message 占位提示信息
- */
 @Composable
-private fun PlaceholderTab(
-    icon: String,
-    title: String,
-    message: String,
-) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        GlassCard(
-            modifier = Modifier
-                .widthIn(max = 400.dp)
-                .padding(32.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
+private fun PlaceholderTab(icon: String, title: String, message: String) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        GlassCard(modifier = Modifier.widthIn(max = 400.dp).padding(32.dp), shape = RoundedCornerShape(16.dp)) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp),
+                modifier = Modifier.fillMaxWidth().padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(
-                    text = icon,
-                    fontSize = 48.sp,
-                )
-                Text(
-                    text = title,
-                    color = GlassTheme.TextPrimary,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Text(
-                    text = message,
-                    color = GlassTheme.TextTertiary,
-                    fontSize = 14.sp,
-                )
+                Text(icon, fontSize = 48.sp)
+                Text(title, color = GlassTheme.TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Text(message, color = GlassTheme.TextTertiary, fontSize = 14.sp)
             }
         }
     }

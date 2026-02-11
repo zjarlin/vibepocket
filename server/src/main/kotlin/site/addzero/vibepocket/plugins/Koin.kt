@@ -4,14 +4,13 @@ import io.ktor.server.application.*
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
 import org.koin.plugin.module.dsl.withConfiguration
+import site.addzero.ioc.annotation.Bean
 import site.addzero.vibepocket.di.AppKoinApplication
 
 /**
- * Koin KCP 模式：
- * - @Single 注解在 DatabaseModule 中注册 DataSource / KSqlClient
- * - @KoinApplication 声明 AppKoinApplication
- * - withConfiguration<T>() 是 KCP/KSP 生成的 typed API
+ * @Bean是自己封装的DI注解,koin不支持扩展函数的聚合
  */
+@Bean
 fun Application.configureKoin() {
     install(Koin) {
         slf4jLogger()

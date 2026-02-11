@@ -1,33 +1,25 @@
 package site.addzero.vibepocket
 
-import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import org.koin.core.annotation.KoinInternalApi
-import org.koin.ktor.ext.getKoin
-import site.addzero.vibepocket.plugins.configureKoin
-import site.addzero.vibepocket.plugins.configureOpenApi
-import site.addzero.vibepocket.plugins.configureRouting
-import site.addzero.vibepocket.plugins.configureStatusPages
+import site.addzero.vibepocket.plugins.ioc.generated.iocModule
 
 
 fun main() {
-    embeddedServer(Netty, port = SERVER_PORT, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
+    startEmbeddedServer().start(wait = true)
 }
 
-
-@OptIn(KoinInternalApi::class)
-fun Application.module() {
-//    configureBanner()
-    configureKoin()
-    val koin = getKoin()
-    // 如果只是想看有哪些定义（不触发创建）：
-    koin.instanceRegistry.instances.forEach { (key, value) ->
-        log.info("Bean: $key -> $value")
+/**
+ * 启动内嵌 Ktor server（非阻塞），返回 server 实例。
+ * 桌面端 main.kt 调用此函数，不需要单独部署后端。
+ */
+fun startEmbeddedServer(
+    port: Int = SERVER_PORT,
+    host: String = "0.0.0.0",
+): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
+    return embeddedServer(Netty, port = port, host = host) {
+        iocModule()
     }
-    configureStatusPages()
-    configureRouting()
-    configureOpenApi()
 }
+
 

@@ -42,7 +42,8 @@ akka-stream-netty-all-2-13-version = "0.1.18"
 ktor-banner-version = "2026.02.10"
 filekit-core-version = "0.12.0"
 gadulka-version = "1.9.0"
-ioc-processor-version = "2026.02.11"
+ioc-processor-version = "2026.02.17"
+ioc-core = "2026.02.16"
 [libraries]
 #---------------------- com.android.tools.build -----------------------
 com-android-tools-build-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
@@ -118,7 +119,8 @@ filekit-dialogs-compose = { group = "io.github.vinceglb", name = "filekit-dialog
 filekit-coil = { group = "io.github.vinceglb", name = "filekit-coil", version.ref = "filekit-core-version" }
 gadulka = { group = "eu.iamkonstantin.gadulka", name = "gadulka", version.ref = "gadulka-version" }
 ioc-processor = { group = "site.addzero", name = "ioc-processor", version.ref = "ioc-processor-version" }
-ioc-core = { group = "site.addzero", name = "ioc-core", version.ref = "ioc-processor-version" }
+ioc-core = { group = "site.addzero", name = "ioc-core", version.ref = "ioc-core" }
+kotlin-gadulka = { group = "eu.iamkonstantin.kotlin", name = "gadulka", version.ref = "gadulka-version" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }

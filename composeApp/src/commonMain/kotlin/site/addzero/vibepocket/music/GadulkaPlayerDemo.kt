@@ -3,21 +3,15 @@ package site.addzero.vibepocket.music
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.VolumeDown
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import eu.iamkonstantin.gadulka.GadulkaPlayer
-import eu.iamkonstantin.gadulka.PlayerState
-import eu.iamkonstantin.gadulka.rememberPlayerState
+import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
+import site.addzero.ioc.annotation.Bean
 
 /**
  * Gadulka 播放器 Demo
@@ -26,6 +20,7 @@ import eu.iamkonstantin.gadulka.rememberPlayerState
  * 支持：播放/暂停、停止、音量调节、进度条、播放速率调节。
  */
 @Composable
+@Bean
 fun GadulkaPlayerDemo(
     modifier: Modifier = Modifier,
 ) {

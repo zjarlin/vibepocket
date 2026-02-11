@@ -1,34 +1,57 @@
 package site.addzero.vibepocket.music
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import site.addzero.component.glass.*
+import site.addzero.component.glass.GlassButton
+import site.addzero.component.glass.GlassColors
+import site.addzero.component.glass.NeonGlassButton
+import site.addzero.ioc.annotation.Bean
+import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.api.SunoApiClient
 import site.addzero.vibepocket.model.*
-import site.addzero.vibepocket.settings.ConfigStore
 
 private val prettyJson = Json { prettyPrint = true; encodeDefaults = true }
+
+@Serializable
+private data class ConfigResp(val key: String, val value: String?)
+
+/** 从内嵌 server 读取配置 */
+private suspend fun fetchConfig(key: String): String? {
+    val client = HttpClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
+    return try {
+        client.get("http://localhost:8080/api/config/$key").body<ConfigResp>().value
+    } catch (_: Exception) {
+        null
+    } finally {
+        client.close()
+    }
+}
 
 /**
  * 音乐 Vibe 主界面
  * 分屏布局：左侧分步表单，右侧任务进度
  */
 @Composable
-fun MusicVibeScreen(configStore: ConfigStore) {
+@Bean
+fun MusicVibeScreen() {
     val scope = rememberCoroutineScope()
 
     // ===== 表单状态 =====
@@ -45,6 +68,9 @@ fun MusicVibeScreen(configStore: ConfigStore) {
     var vocalGender by remember { mutableStateOf("m") }
     var negativeTags by remember { mutableStateOf("") }
     var gptDescriptionPrompt by remember { mutableStateOf("") }
+    // Persona
+    var personas by remember { mutableStateOf<List<PersonaItem>>(emptyList()) }
+    var selectedPersonaId by remember { mutableStateOf<String?>(null) }
 
     // ===== 任务状态 =====
     var submittedJson by remember { mutableStateOf<String?>(null) }
@@ -52,6 +78,62 @@ fun MusicVibeScreen(configStore: ConfigStore) {
     var isSubmitted by remember { mutableStateOf(false) }
     var taskDetail by remember { mutableStateOf<SunoTaskDetail?>(null) }
     var isSubmitting by remember { mutableStateOf(false) }
+
+    // ===== 积分状态 =====
+    var credits by remember { mutableStateOf<Int?>(null) }
+    var isLoadingCredits by remember { mutableStateOf(false) }
+
+    // ── 初始化加载 Persona 列表 & 积分 ──
+    LaunchedEffect(Unit) {
+        personas = try {
+            ServerApiClient.getPersonas()
+        } catch (_: Exception) {
+            emptyList()
+        }
+        // 加载积分
+        isLoadingCredits = true
+        try {
+            val token = fetchConfig("suno_api_token") ?: ""
+            val url = fetchConfig("suno_api_base_url")
+                ?.ifBlank { null }
+                ?: "https://api.sunoapi.org/api/v1"
+            val client = SunoApiClient(apiToken = token, baseUrl = url)
+            credits = client.getCredits()
+        } catch (_: Exception) {
+            credits = null
+        } finally {
+            isLoadingCredits = false
+        }
+    }
+
+    // ── 音乐生成成功后自动保存历史记录 ──
+    LaunchedEffect(taskDetail?.taskId, taskDetail?.isSuccess) {
+        val detail = taskDetail ?: return@LaunchedEffect
+        if (!detail.isSuccess) return@LaunchedEffect
+        val tId = detail.taskId ?: return@LaunchedEffect
+        val tracks = detail.response?.sunoData ?: emptyList()
+        try {
+            ServerApiClient.saveHistory(
+                MusicHistorySaveRequest(
+                    taskId = tId,
+                    type = detail.type ?: "generate",
+                    status = detail.status ?: "SUCCESS",
+                    tracks = tracks.map { t ->
+                        MusicHistoryTrack(
+                            id = t.id,
+                            audioUrl = t.audioUrl,
+                            title = t.title,
+                            tags = t.tags,
+                            imageUrl = t.imageUrl,
+                            duration = t.duration,
+                        )
+                    },
+                )
+            )
+        } catch (_: Exception) {
+            // 保存历史失败不阻断主流程
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -83,6 +165,9 @@ fun MusicVibeScreen(configStore: ConfigStore) {
                         color = GlassColors.NeonCyan,
                         fontSize = 14.sp
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    CreditsBar(credits = credits, isLoading = isLoadingCredits)
                     Spacer(modifier = Modifier.height(16.dp))
 
                     StepIndicator(currentStep)
@@ -98,6 +183,7 @@ fun MusicVibeScreen(configStore: ConfigStore) {
                                 artistName = artistName,
                                 onArtistNameChange = { artistName = it }
                             )
+
                             VibeStep.PARAMS -> ParamsStep(
                                 title = title,
                                 onTitleChange = { title = it },
@@ -112,7 +198,10 @@ fun MusicVibeScreen(configStore: ConfigStore) {
                                 negativeTags = negativeTags,
                                 onNegativeTagsChange = { negativeTags = it },
                                 gptDescriptionPrompt = gptDescriptionPrompt,
-                                onGptDescriptionPromptChange = { gptDescriptionPrompt = it }
+                                onGptDescriptionPromptChange = { gptDescriptionPrompt = it },
+                                personas = personas,
+                                selectedPersonaId = selectedPersonaId,
+                                onPersonaChange = { selectedPersonaId = it },
                             )
                         }
                     }
@@ -140,6 +229,7 @@ fun MusicVibeScreen(configStore: ConfigStore) {
                                     enabled = lyrics.isNotBlank()
                                 )
                             }
+
                             VibeStep.PARAMS -> {
                                 NeonGlassButton(
                                     text = if (isSubmitting) "⏳ 提交中..." else "🚀 提交 Vibe",
@@ -155,6 +245,7 @@ fun MusicVibeScreen(configStore: ConfigStore) {
                                             style = tags.ifBlank { null },
                                             negativeTags = negativeTags.ifBlank { null },
                                             vocalGender = vocalGender,
+                                            personaId = selectedPersonaId,
                                         )
                                         val jsonStr = prettyJson.encodeToString(request)
                                         submittedJson = jsonStr
@@ -162,15 +253,13 @@ fun MusicVibeScreen(configStore: ConfigStore) {
                                         isSubmitting = true
                                         taskStatus = "正在提交..."
 
-                                        // 从配置读取 token 和 baseUrl
-                                        val configs = configStore.load()
-                                        val tokenConfig = configs.music.firstOrNull { it.label.contains("Token") }
-                                        val urlConfig = configs.music.firstOrNull { it.label.contains("URL") }
-                                        val token = tokenConfig?.key ?: ""
-                                        val url = urlConfig?.baseUrl?.ifBlank { null }
-                                            ?: "https://api.sunoapi.org/api/v1"
-
                                         scope.launch {
+                                            // 从内嵌 server DB 读取配置
+                                            val token = fetchConfig("suno_api_token") ?: ""
+                                            val url = fetchConfig("suno_api_base_url")
+                                                ?.ifBlank { null }
+                                                ?: "https://api.sunoapi.org/api/v1"
+
                                             try {
                                                 val client = SunoApiClient(apiToken = token, baseUrl = url)
                                                 taskStatus = "正在提交任务..."
@@ -190,6 +279,13 @@ fun MusicVibeScreen(configStore: ConfigStore) {
                                                 taskStatus = "❌ 错误: ${e.message}"
                                             } finally {
                                                 isSubmitting = false
+                                                // 刷新积分
+                                                try {
+                                                    val refreshClient = SunoApiClient(apiToken = token, baseUrl = url)
+                                                    credits = refreshClient.getCredits()
+                                                } catch (_: Exception) {
+                                                    // 刷新失败不阻断
+                                                }
                                             }
                                         }
                                     },

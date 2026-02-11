@@ -7,6 +7,7 @@ import io.ktor.server.routing.*
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.koin.ktor.ext.inject
+import site.addzero.ioc.annotation.Bean
 import site.addzero.network.call.suno.SunoClient
 import site.addzero.network.call.suno.model.SunoMusicRequest
 import site.addzero.vibepocket.dto.*
@@ -20,6 +21,7 @@ import java.time.LocalDateTime
  *
  * 依赖通过 Koin 自动注入，不需要外部传参。
  */
+@Bean
 fun Route.sunoRoutes() {
     val sqlClient by inject<KSqlClient>()
 

@@ -2,7 +2,9 @@ package site.addzero.vibepocket.music
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import site.addzero.component.glass.*
+import site.addzero.vibepocket.model.PersonaItem
 import site.addzero.vibepocket.model.SUNO_MODELS
 import site.addzero.vibepocket.model.VOCAL_GENDERS
 
@@ -35,7 +38,10 @@ fun ParamsStep(
     negativeTags: String,
     onNegativeTagsChange: (String) -> Unit,
     gptDescriptionPrompt: String,
-    onGptDescriptionPromptChange: (String) -> Unit
+    onGptDescriptionPromptChange: (String) -> Unit,
+    personas: List<PersonaItem> = emptyList(),
+    selectedPersonaId: String? = null,
+    onPersonaChange: (String?) -> Unit = {},
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         // 基本信息
@@ -79,6 +85,14 @@ fun ParamsStep(
                     options = VOCAL_GENDERS.map { it.first },
                     labels = VOCAL_GENDERS.map { it.second },
                     selected = vocalGender, onSelect = onVocalGenderChange
+                )
+
+                // Persona 声音角色选择
+                FieldLabel("Persona 声音角色")
+                PersonaSelector(
+                    personas = personas,
+                    selectedPersonaId = selectedPersonaId,
+                    onPersonaChange = onPersonaChange,
                 )
 
                 // 纯音乐开关
@@ -159,6 +173,64 @@ fun ChipSelector(
                     color = if (isSelected) GlassColors.NeonCyan else GlassTheme.TextSecondary,
                     fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Persona 声音角色选择器
+ * 使用横向可滚动 Chip 列表，第一项为"无 Persona"默认选项。
+ */
+@Composable
+private fun PersonaSelector(
+    personas: List<PersonaItem>,
+    selectedPersonaId: String?,
+    onPersonaChange: (String?) -> Unit,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+    ) {
+        // 默认"无"选项
+        val noneSelected = selectedPersonaId == null
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(
+                    if (noneSelected) GlassColors.NeonCyan.copy(alpha = 0.3f)
+                    else Color.White.copy(alpha = 0.08f)
+                )
+                .clickable { onPersonaChange(null) }
+                .padding(horizontal = 14.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = "无",
+                color = if (noneSelected) GlassColors.NeonCyan else GlassTheme.TextSecondary,
+                fontSize = 13.sp,
+                fontWeight = if (noneSelected) FontWeight.Bold else FontWeight.Normal,
+            )
+        }
+
+        // Persona 列表
+        personas.forEach { persona ->
+            val isSelected = persona.personaId == selectedPersonaId
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(
+                        if (isSelected) GlassColors.NeonCyan.copy(alpha = 0.3f)
+                        else Color.White.copy(alpha = 0.08f)
+                    )
+                    .clickable { onPersonaChange(persona.personaId) }
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = persona.name,
+                    color = if (isSelected) GlassColors.NeonCyan else GlassTheme.TextSecondary,
+                    fontSize = 13.sp,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                 )
             }
         }

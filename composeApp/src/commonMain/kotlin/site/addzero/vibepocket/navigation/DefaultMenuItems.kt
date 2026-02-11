@@ -26,6 +26,13 @@ val defaultMenuItems = listOf(
         sortOrder = 2
     ),
     MenuMetadata(
+        routeKey = "site.addzero.vibepocket.music.GadulkaPlayerDemo",
+        menuNameAlias = "播放器",
+        icon = "🎧",
+        parentRouteKey = "site.addzero.vibepocket.music.MusicVibeScreen",
+        sortOrder = 1
+    ),
+    MenuMetadata(
         routeKey = "site.addzero.vibepocket.settings.SettingsPage",
         menuNameAlias = "设置",
         icon = "⚙️",

@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.koin.ktor.ext.inject
+import site.addzero.ioc.annotation.Bean
 import site.addzero.vibepocket.model.AppConfig
 import site.addzero.vibepocket.model.key
 import site.addzero.vibepocket.model.value
@@ -44,6 +45,7 @@ data class ConfigEntry(val key: String, val value: String, val description: Stri
 data class ConfigResponse(val key: String, val value: String?)
 
 
+@Bean
 fun Route.configRoutes() {
     val sqlClient by inject<KSqlClient>()
 

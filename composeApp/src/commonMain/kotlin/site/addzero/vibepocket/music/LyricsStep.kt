@@ -17,10 +17,37 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.util.date.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
+import site.addzero.vibepocket.api.SunoApiClient
 import site.addzero.vibepocket.model.NeteaseSearchSong
+import site.addzero.vibepocket.model.SunoLyricItem
+import site.addzero.vibepocket.model.SunoLyricsRequest
 import site.addzero.vibepocket.service.MusicSearchService
+
+@Serializable
+private data class LyricsConfigResp(val key: String, val value: String?)
+
+/** 从内嵌 server 读取配置 */
+private suspend fun fetchLyricsConfig(key: String): String? {
+    val client = HttpClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
+    return try {
+        client.get("http://localhost:8080/api/config/$key").body<LyricsConfigResp>().value
+    } catch (_: Exception) {
+        null
+    } finally {
+        client.close()
+    }
+}
 
 /**
  * 第一步：确认歌词
@@ -42,7 +69,31 @@ fun LyricsStep(
     // 正在加载歌词的歌曲 ID
     var loadingLyricId by remember { mutableStateOf<Long?>(null) }
 
+    // AI 生成模式开关
+    var isAiMode by remember { mutableStateOf(false) }
+
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        // ── 模式切换按钮 ──
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            NeonGlassButton(
+                text = if (isAiMode) "📝 手动编辑" else "🤖 AI 生成歌词",
+                onClick = { isAiMode = !isAiMode },
+                glowColor = if (isAiMode) GlassColors.NeonCyan else GlassColors.NeonPurple,
+            )
+        }
+
+        // ── AI 歌词生成区域 ──
+        if (isAiMode) {
+            AiLyricsGenerator(onLyricsGenerated = { generatedLyrics ->
+                onLyricsChange(generatedLyrics)
+                // 填入歌词后自动切回编辑模式
+                isAiMode = false
+            })
+        }
+
         // ── 搜索区域 ──
         NeonGlassCard(
             modifier = Modifier.fillMaxWidth(),
@@ -192,6 +243,216 @@ fun LyricsStep(
                     fontSize = 11.sp
                 )
             }
+        }
+    }
+}
+
+// ── AI 歌词生成器 ──────────────────────────────────────────
+
+/**
+ * AI 歌词生成组件
+ *
+ * 输入描述提示词 → 调用 SunoApiClient.generateLyrics() → 轮询 getLyricsDetail()
+ * → 多条候选以列表展示供选择 → 选中后回调 onLyricsGenerated
+ */
+@Composable
+fun AiLyricsGenerator(
+    onLyricsGenerated: (String) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    var prompt by remember { mutableStateOf("") }
+    var isGenerating by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var candidates by remember { mutableStateOf<List<SunoLyricItem>>(emptyList()) }
+    var statusText by remember { mutableStateOf<String?>(null) }
+
+    NeonGlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        glowColor = GlassColors.NeonPurple
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "🤖 AI 歌词生成",
+                color = Color.White,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = "输入描述，让 AI 为你生成歌词",
+                color = GlassTheme.TextTertiary,
+                fontSize = 12.sp
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            GlassTextField(
+                value = prompt,
+                onValueChange = { prompt = it },
+                placeholder = "描述你想要的歌词风格和主题，例如：一首关于夏天海边的浪漫情歌",
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            NeonGlassButton(
+                text = if (isGenerating) "⏳ 生成中..." else "✨ 生成歌词",
+                onClick = {
+                    if (isGenerating) return@NeonGlassButton
+                    isGenerating = true
+                    errorMessage = null
+                    candidates = emptyList()
+                    statusText = "正在提交..."
+
+                    scope.launch {
+                        try {
+                            val token = fetchLyricsConfig("suno_api_token") ?: ""
+                            val url = fetchLyricsConfig("suno_api_base_url")
+                                ?.ifBlank { null }
+                                ?: "https://api.sunoapi.org/api/v1"
+                            val client = SunoApiClient(apiToken = token, baseUrl = url)
+
+                            // 提交歌词生成任务
+                            val taskId = client.generateLyrics(SunoLyricsRequest(prompt = prompt))
+                            statusText = "已提交，轮询中..."
+
+                            // 轮询等待完成
+                            val maxWaitMs = 300_000L
+                            val pollIntervalMs = 5_000L
+                            val startTime = getTimeMillis()
+
+                            while (true) {
+                                val elapsed = getTimeMillis() - startTime
+                                if (elapsed > maxWaitMs) {
+                                    throw RuntimeException("歌词生成超时，已等待 ${maxWaitMs / 1000} 秒")
+                                }
+
+                                val detail = client.getLyricsDetail(taskId)
+                                when {
+                                    detail?.isSuccess == true -> {
+                                        val items = detail.response?.data ?: emptyList()
+                                        candidates = items.filter { !it.text.isNullOrBlank() }
+                                        statusText = null
+                                        // 如果只有一条候选，直接填入
+                                        if (candidates.size == 1) {
+                                            onLyricsGenerated(candidates.first().text!!)
+                                        }
+                                        break
+                                    }
+                                    detail?.isFailed == true -> {
+                                        throw RuntimeException(
+                                            detail.errorMessage ?: detail.errorCode ?: "歌词生成失败"
+                                        )
+                                    }
+                                    else -> {
+                                        statusText = "生成中..."
+                                        delay(pollIntervalMs)
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            errorMessage = "❌ ${e.message}"
+                            statusText = null
+                        } finally {
+                            isGenerating = false
+                        }
+                    }
+                },
+                glowColor = GlassColors.NeonPurple,
+                enabled = prompt.isNotBlank() && !isGenerating
+            )
+
+            // 状态文本
+            statusText?.let { status ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = status, color = GlassColors.NeonCyan, fontSize = 12.sp)
+            }
+
+            // 错误信息 + 重试
+            errorMessage?.let { error ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = error, color = GlassColors.NeonMagenta, fontSize = 12.sp)
+                Spacer(modifier = Modifier.height(4.dp))
+                GlassButton(
+                    text = "🔄 重试",
+                    onClick = { errorMessage = null }
+                )
+            }
+
+            // 多条候选歌词列表
+            if (candidates.size > 1) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "🎶 候选歌词（${candidates.size} 条）· 点击选择",
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(candidates.size) { index ->
+                        val candidate = candidates[index]
+                        LyricCandidateItem(
+                            index = index + 1,
+                            item = candidate,
+                            onClick = {
+                                candidate.text?.let { onLyricsGenerated(it) }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** 单条候选歌词卡片 */
+@Composable
+private fun LyricCandidateItem(
+    index: Int,
+    item: SunoLyricItem,
+    onClick: () -> Unit,
+) {
+    GlassCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "候选 $index",
+                    color = GlassColors.NeonCyan,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                item.title?.let { title ->
+                    if (title.isNotBlank()) {
+                        Text(
+                            text = title,
+                            color = Color.White,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = item.text ?: "",
+                color = GlassTheme.TextSecondary,
+                fontSize = 12.sp,
+                maxLines = 6,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
