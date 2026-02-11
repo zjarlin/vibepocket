@@ -16,6 +16,7 @@ dependencies {
     implementation(libs.com.google.devtools.ksp.com.google.devtools.ksp.gradle.plugin)
     implementation(libs.io.insert.koin.koin.compiler.gradle.plugin)
     implementation(libs.org.jetbrains.compose.compose.gradle.plugin)
+    implementation(libs.org.jetbrains.kotlin.kotlin.serialization)
 
 //   implementation("io.insert-koin:koin-compiler-plugin:0.3.0")
 }

@@ -7,15 +7,16 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.date.*
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
-import site.addzero.vibepocket.model.SunoMusicRequest
-import site.addzero.vibepocket.model.SunoTask
+import site.addzero.vibepocket.model.*
 
 /**
- * Suno API 客户端（基于 Ktorfit）
+ * Suno API 客户端（全量接口）
+ *
+ * 对接 https://api.sunoapi.org/api/v1
  */
 class SunoApiClient(
     private val apiToken: String,
-    private val baseUrl: String = "https://vector.addzero.site",
+    baseUrl: String = "https://api.sunoapi.org/api/v1",
 ) {
     private val client = HttpClient {
         install(ContentNegotiation) {
@@ -32,33 +33,91 @@ class SunoApiClient(
         .build()
         .createSunoApi()
 
-    private val authHeader get() = "Bearer $apiToken"
+    private val auth get() = "Bearer $apiToken"
 
-    /** 提交音乐生成任务，返回任务 ID */
-    suspend fun generateMusic(request: SunoMusicRequest): String {
-        return api.generateMusic(request, authHeader).getOrThrow()
-    }
+    // ── 音乐生成 ─────────────────────────────────────────────
 
-    /** 查询单个任务状态 */
-    suspend fun fetchTask(taskId: String): SunoTask? {
-        return api.fetchTask(taskId, authHeader).getOrNull()
-    }
+    suspend fun generateMusic(request: SunoGenerateRequest): String =
+        api.generateMusic(request, auth).getOrThrow().taskId
 
-    /** 轮询等待任务完成 */
+    suspend fun extendMusic(request: SunoExtendRequest): String =
+        api.extendMusic(request, auth).getOrThrow().taskId
+
+    suspend fun uploadCover(request: SunoUploadCoverRequest): String =
+        api.uploadCover(request, auth).getOrThrow().taskId
+
+    suspend fun uploadExtend(request: SunoUploadExtendRequest): String =
+        api.uploadExtend(request, auth).getOrThrow().taskId
+
+    suspend fun addVocals(request: SunoAddVocalsRequest): String =
+        api.addVocals(request, auth).getOrThrow().taskId
+
+    suspend fun addInstrumental(request: SunoAddInstrumentalRequest): String =
+        api.addInstrumental(request, auth).getOrThrow().taskId
+
+    suspend fun generateMusicCover(request: SunoMusicCoverRequest): String =
+        api.generateMusicCover(request, auth).getOrThrow().taskId
+
+    suspend fun replaceSection(request: SunoReplaceSectionRequest): String =
+        api.replaceSection(request, auth).getOrThrow().taskId
+
+    // ── 查询 ─────────────────────────────────────────────────
+
+    suspend fun getTaskDetail(taskId: String): SunoTaskDetail? =
+        api.getTaskDetail(taskId, auth).getOrNull()
+
+    suspend fun getCoverDetail(taskId: String): SunoTaskDetail? =
+        api.getCoverDetail(taskId, auth).getOrNull()
+
+    // ── 歌词 ─────────────────────────────────────────────────
+
+    suspend fun generateLyrics(request: SunoLyricsRequest): String =
+        api.generateLyrics(request, auth).getOrThrow().taskId
+
+    suspend fun getLyricsDetail(taskId: String): SunoLyricsTaskDetail? =
+        api.getLyricsDetail(taskId, auth).getOrNull()
+
+    suspend fun getTimestampedLyrics(request: SunoTimestampedLyricsRequest): SunoTimestampedLyricsData =
+        api.getTimestampedLyrics(request, auth).getOrThrow()
+
+    // ── Persona ──────────────────────────────────────────────
+
+    suspend fun generatePersona(request: SunoGeneratePersonaRequest): SunoPersonaData =
+        api.generatePersona(request, auth).getOrThrow()
+
+    // ── 音频处理 ─────────────────────────────────────────────
+
+    suspend fun vocalRemoval(request: SunoVocalRemovalRequest): String =
+        api.vocalRemoval(request, auth).getOrThrow().taskId
+
+    suspend fun boostMusicStyle(request: SunoBoostStyleRequest): SunoBoostStyleData =
+        api.boostMusicStyle(request, auth).getOrThrow()
+
+    suspend fun convertToWav(request: SunoWavRequest): String =
+        api.convertToWav(request, auth).getOrThrow().taskId
+
+    // ── 账户 ─────────────────────────────────────────────────
+
+    suspend fun getCredits(): Int =
+        api.getCredits(auth).getOrThrow().credits
+
+    // ── 轮询 ─────────────────────────────────────────────────
+
+    /** 轮询等待音乐生成任务完成 */
     suspend fun waitForCompletion(
         taskId: String,
         maxWaitMs: Long = 600_000L,
-        pollIntervalMs: Long = 10_000L,
-        onStatusUpdate: ((SunoTask?) -> Unit)? = null,
-    ): SunoTask {
+        pollIntervalMs: Long = 30_000L,
+        onStatusUpdate: ((SunoTaskDetail?) -> Unit)? = null,
+    ): SunoTaskDetail {
         val startTime = getTimeMillis()
         while (getTimeMillis() - startTime < maxWaitMs) {
-            val task = fetchTask(taskId)
-            onStatusUpdate?.invoke(task)
+            val detail = getTaskDetail(taskId)
+            onStatusUpdate?.invoke(detail)
             when {
-                task?.isComplete == true -> return task
-                task?.isError == true -> throw RuntimeException(
-                    "任务失败: ${task.error ?: task.errorMessage}"
+                detail?.isSuccess == true -> return detail
+                detail?.isFailed == true -> throw RuntimeException(
+                    "任务失败: ${detail.errorMessage ?: detail.errorCode ?: "未知错误"}"
                 )
                 else -> delay(pollIntervalMs)
             }

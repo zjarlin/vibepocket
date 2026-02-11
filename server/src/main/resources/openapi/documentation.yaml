@@ -1,0 +1,6 @@
+openapi: 3.1.0
+info:
+  title: VibePocket API
+  version: 1.0.0
+  description: VibePocket 后端服务 API
+paths: {}

@@ -87,13 +87,13 @@
     - 使用 Kotest property testing，随机生成 ApiConfig
     - 最少 100 次迭代
     - **Validates: Requirements 6.3**
-  - [-]* 5.4 编写 ConfigStore 属性测试
+  - [ ]* 5.4 编写 ConfigStore 属性测试
     - **Property 6: 配置存储往返一致性**
     - **Property 7: 无效 JSON 回退到默认配置**
     - 使用 Kotest property testing，随机生成 ModuleConfigs 和无效 JSON 字符串
     - 最少 100 次迭代
     - **Validates: Requirements 5.6, 6.5**
-  - [~]* 5.5 编写 ConfigStore 单元测试
+  - [ ]* 5.5 编写 ConfigStore 单元测试
     - 测试文件不存在、空文件、部分字段缺失的 JSON
     - _Requirements: 6.4, 6.5_
   - [x] 5.6 实现 SettingsPage Composable

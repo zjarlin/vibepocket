@@ -25,16 +25,16 @@ import site.addzero.component.glass.*
  */
 private enum class SettingsTab(val title: String, val icon: String) {
     MUSIC("音乐", "🎵"),
-    PROGRAMMING("编程", "💻"),
+    IMAGE("图片", "🖼️"),
     VIDEO("视频", "🎬"),
 }
 
 /**
  * 设置页面 — 按模块分 Tab 管理各 AI 服务的 API 配置。
  *
- * 包含三个 Tab：音乐、编程、视频。
+ * 包含三个 Tab：音乐、图片、视频。
  * - 音乐 Tab：展示 Suno API Token、Suno API Base URL、Music Search API URL 的输入框和保存按钮
- * - 编程 Tab：占位提示，预留未来 AI 编程模型配置
+ * - 图片 Tab：占位提示，预留未来 AI 图片生成配置
  * - 视频 Tab：占位提示，预留未来视频生成 API 配置
  *
  * @param configStore 配置持久化存储实例，用于加载和保存配置
@@ -89,11 +89,11 @@ fun SettingsPage(configStore: ConfigStore) {
                         )
                     }
 
-                    SettingsTab.PROGRAMMING -> {
+                    SettingsTab.IMAGE -> {
                         PlaceholderTab(
-                            icon = "💻",
-                            title = "编程模块",
-                            message = "AI 编程模型配置即将开放，敬请期待。",
+                            icon = "🖼️",
+                            title = "图片模块",
+                            message = "AI 图片生成配置即将开放，敬请期待。",
                         )
                     }
 
@@ -270,7 +270,7 @@ private fun ApiConfigField(
 }
 
 /**
- * 占位 Tab 内容 — 用于编程和视频模块的占位提示。
+ * 占位 Tab 内容 — 用于图片和视频模块的占位提示。
  *
  * @param icon 模块图标（emoji）
  * @param title 模块标题

@@ -17,14 +17,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import site.addzero.component.glass.*
-import site.addzero.vibepocket.model.SunoTask
+import site.addzero.vibepocket.model.SunoTaskDetail
 
 @Composable
 fun TaskProgressPanel(
     submittedJson: String?,
     taskStatus: String,
-    sunoTask: SunoTask? = null,
+    taskDetail: SunoTaskDetail? = null,
 ) {
+    val tracks = taskDetail?.response?.sunoData ?: emptyList()
+
     NeonGlassCard(
         modifier = Modifier.fillMaxSize(),
         glowColor = GlassColors.NeonMagenta
@@ -35,35 +37,30 @@ fun TaskProgressPanel(
                 .padding(20.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = "📊 任务面板",
-                color = Color.White,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text("📊 任务面板", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 GlassStatCard(
-                    value = if (sunoTask != null) "1" else "0",
-                    label = "任务数",
+                    value = "${tracks.size}",
+                    label = "音轨数",
                     modifier = Modifier.width(100.dp).height(80.dp),
                     glowColor = GlassColors.NeonCyan
                 )
                 GlassStatCard(
-                    value = sunoTask?.displayStatus?.take(4) ?: taskStatus.take(4),
+                    value = taskDetail?.displayStatus?.take(4) ?: taskStatus.take(4),
                     label = "状态",
                     modifier = Modifier.width(100.dp).height(80.dp),
                     glowColor = when {
-                        sunoTask?.isComplete == true -> GlassColors.NeonCyan
-                        sunoTask?.isError == true -> GlassColors.NeonMagenta
+                        taskDetail?.isSuccess == true -> GlassColors.NeonCyan
+                        taskDetail?.isFailed == true -> GlassColors.NeonMagenta
                         else -> GlassColors.NeonPurple
                     }
                 )
-                // 显示时长（如果有）
-                if (sunoTask?.duration != null) {
+                val firstDuration = taskDetail?.firstTrack?.duration
+                if (firstDuration != null) {
                     GlassStatCard(
-                        value = "${sunoTask.duration!!.toInt()}s",
+                        value = "${firstDuration.toInt()}s",
                         label = "时长",
                         modifier = Modifier.width(100.dp).height(80.dp),
                         glowColor = GlassColors.NeonCyan
@@ -72,60 +69,45 @@ fun TaskProgressPanel(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-
-            GlassInfoCard(
-                title = "当前状态",
-                content = taskStatus,
-                modifier = Modifier.fillMaxWidth()
-            )
-
+            GlassInfoCard(title = "当前状态", content = taskStatus, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(16.dp))
 
             // ===== 生成结果 =====
             Text("🎵 生成结果", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(8.dp))
 
-            if (sunoTask?.isComplete == true && sunoTask.audioUrl != null) {
-                // 任务完成，展示结果
-                GlassCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        sunoTask.title?.let {
-                            Text("🎵 $it", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                        }
-                        sunoTask.tags?.let {
-                            Text("🏷️ $it", color = GlassTheme.TextSecondary, fontSize = 12.sp)
-                        }
-                        Text(
-                            text = "🔗 ${sunoTask.audioUrl}",
-                            color = GlassColors.NeonCyan,
-                            fontSize = 12.sp,
-                        )
-                        sunoTask.videoUrl?.let { url ->
-                            Text(
-                                text = "🎬 $url",
-                                color = GlassColors.NeonPurple,
-                                fontSize = 12.sp,
-                            )
+            if (taskDetail?.isSuccess == true && tracks.isNotEmpty()) {
+                tracks.forEach { track ->
+                    GlassCard(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            track.title?.let {
+                                Text("🎵 $it", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                            track.tags?.let {
+                                Text("🏷️ $it", color = GlassTheme.TextSecondary, fontSize = 12.sp)
+                            }
+                            track.audioUrl?.let { url ->
+                                Text("🔗 $url", color = GlassColors.NeonCyan, fontSize = 12.sp)
+                            }
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-            } else if (sunoTask?.isError == true) {
-                // 任务失败
+            } else if (taskDetail?.isFailed == true) {
                 GlassCard(modifier = Modifier.fillMaxWidth()) {
                     Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "❌ ${sunoTask.error ?: sunoTask.errorMessage ?: "未知错误"}",
+                            text = "❌ ${taskDetail.errorMessage ?: taskDetail.errorCode ?: "未知错误"}",
                             color = GlassColors.NeonMagenta,
                             fontSize = 13.sp
                         )
                     }
                 }
             } else {
-                // 等待中
                 GlassCard(modifier = Modifier.fillMaxWidth()) {
                     Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
                         Text(
-                            text = if (sunoTask?.isProcessing == true) "⏳ 正在生成中，请稍候..."
+                            text = if (taskDetail?.isProcessing == true) "⏳ 正在生成中，请稍候..."
                             else "等待提交...",
                             color = GlassTheme.TextTertiary,
                             fontSize = 13.sp

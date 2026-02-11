@@ -40,7 +40,7 @@ fun MusicVibeScreen(configStore: ConfigStore) {
     // Step 2: 参数
     var title by remember { mutableStateOf("") }
     var tags by remember { mutableStateOf("") }
-    var mv by remember { mutableStateOf("chirp-v5") }
+    var mv by remember { mutableStateOf("V4_5") }
     var makeInstrumental by remember { mutableStateOf(false) }
     var vocalGender by remember { mutableStateOf("m") }
     var negativeTags by remember { mutableStateOf("") }
@@ -50,7 +50,7 @@ fun MusicVibeScreen(configStore: ConfigStore) {
     var submittedJson by remember { mutableStateOf<String?>(null) }
     var taskStatus by remember { mutableStateOf("未提交") }
     var isSubmitted by remember { mutableStateOf(false) }
-    var sunoTask by remember { mutableStateOf<SunoTask?>(null) }
+    var taskDetail by remember { mutableStateOf<SunoTaskDetail?>(null) }
     var isSubmitting by remember { mutableStateOf(false) }
 
     Box(
@@ -146,15 +146,15 @@ fun MusicVibeScreen(configStore: ConfigStore) {
                                     onClick = {
                                         if (isSubmitting) return@NeonGlassButton
 
-                                        val request = SunoMusicRequest(
-                                            mv = mv,
-                                            title = title.ifBlank { null },
-                                            tags = tags.ifBlank { null },
+                                        val request = SunoGenerateRequest(
                                             prompt = lyrics,
-                                            makeInstrumental = makeInstrumental,
-                                            vocalGender = vocalGender,
+                                            customMode = true,
+                                            instrumental = makeInstrumental,
+                                            model = mv,
+                                            title = title.ifBlank { null },
+                                            style = tags.ifBlank { null },
                                             negativeTags = negativeTags.ifBlank { null },
-                                            gptDescriptionPrompt = gptDescriptionPrompt.ifBlank { null }
+                                            vocalGender = vocalGender,
                                         )
                                         val jsonStr = prettyJson.encodeToString(request)
                                         submittedJson = jsonStr
@@ -167,26 +167,25 @@ fun MusicVibeScreen(configStore: ConfigStore) {
                                         val tokenConfig = configs.music.firstOrNull { it.label.contains("Token") }
                                         val urlConfig = configs.music.firstOrNull { it.label.contains("URL") }
                                         val token = tokenConfig?.key ?: ""
-                                        val url = urlConfig?.baseUrl?.ifBlank { null } ?: "https://vector.addzero.site"
+                                        val url = urlConfig?.baseUrl?.ifBlank { null }
+                                            ?: "https://api.sunoapi.org/api/v1"
 
                                         scope.launch {
                                             try {
                                                 val client = SunoApiClient(apiToken = token, baseUrl = url)
-                                                // 1. 提交任务
                                                 taskStatus = "正在提交任务..."
                                                 val taskId = client.generateMusic(request)
                                                 taskStatus = "已提交，任务 ID: $taskId\n轮询中..."
 
-                                                // 2. 轮询等待完成
-                                                val completedTask = client.waitForCompletion(
+                                                val completed = client.waitForCompletion(
                                                     taskId = taskId,
-                                                    onStatusUpdate = { task ->
-                                                        sunoTask = task
-                                                        taskStatus = task?.displayStatus ?: "查询中..."
+                                                    onStatusUpdate = { detail ->
+                                                        taskDetail = detail
+                                                        taskStatus = detail?.displayStatus ?: "查询中..."
                                                     }
                                                 )
-                                                sunoTask = completedTask
-                                                taskStatus = completedTask.displayStatus
+                                                taskDetail = completed
+                                                taskStatus = completed.displayStatus
                                             } catch (e: Exception) {
                                                 taskStatus = "❌ 错误: ${e.message}"
                                             } finally {
@@ -214,7 +213,7 @@ fun MusicVibeScreen(configStore: ConfigStore) {
                     TaskProgressPanel(
                         submittedJson = submittedJson,
                         taskStatus = taskStatus,
-                        sunoTask = sunoTask,
+                        taskDetail = taskDetail,
                     )
                 }
             }

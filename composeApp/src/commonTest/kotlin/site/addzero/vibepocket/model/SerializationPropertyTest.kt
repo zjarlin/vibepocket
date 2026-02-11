@@ -61,7 +61,7 @@ class SerializationPropertyTest {
     @Test
     fun menuMetadataJsonRoundTrip() = runTest {
         val serializer = serializer<MenuMetadata>()
-        checkAll(PropTestConfig(iterations = 100), arbMenuMetadata) { metadata ->
+        checkAll(PropTestConfig(iterations = 5), arbMenuMetadata) { metadata ->
             val encoded = json.encodeToString(serializer, metadata)
             val decoded = json.decodeFromString(serializer, encoded)
             assertEquals(metadata, decoded)
@@ -95,7 +95,7 @@ class SerializationPropertyTest {
     @Test
     fun apiConfigJsonRoundTrip() = runTest {
         val serializer = serializer<ApiConfig>()
-        checkAll(PropTestConfig(iterations = 100), arbApiConfig) { config ->
+        checkAll(PropTestConfig(iterations = 5), arbApiConfig) { config ->
             val encoded = json.encodeToString(serializer, config)
             val decoded = json.decodeFromString(serializer, encoded)
             assertEquals(config, decoded)

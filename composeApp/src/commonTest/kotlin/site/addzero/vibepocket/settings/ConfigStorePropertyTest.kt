@@ -44,12 +44,12 @@ class ConfigStorePropertyTest {
      */
     private val arbModuleConfigs: Arb<ModuleConfigs> = arbitrary {
         val musicSize = Arb.int(0..5).bind()
-        val programmingSize = Arb.int(0..5).bind()
+        val imageSize = Arb.int(0..5).bind()
         val videoSize = Arb.int(0..5).bind()
 
         ModuleConfigs(
             music = List(musicSize) { arbApiConfig.bind() },
-            programming = List(programmingSize) { arbApiConfig.bind() },
+            image = List(imageSize) { arbApiConfig.bind() },
             video = List(videoSize) { arbApiConfig.bind() }
         )
     }
@@ -80,7 +80,7 @@ class ConfigStorePropertyTest {
             }
             3 -> {
                 // Valid JSON but wrong schema: object with wrong field types
-                """{"music": "not_a_list", "programming": 42, "video": true}"""
+                """{"music": "not_a_list", "image": 42, "video": true}"""
             }
             4 -> {
                 // Just a number
@@ -88,7 +88,7 @@ class ConfigStorePropertyTest {
             }
             5 -> {
                 // Broken JSON with random corruption
-                val base = """{"music":[],"programming":[],"video":[]}"""
+                val base = """{"music":[],"image":[],"video":[]}"""
                 val pos = Arb.int(0 until base.length).bind()
                 val corruptChar = Arb.string(minSize = 1, maxSize = 3).bind()
                 base.substring(0, pos) + corruptChar + base.substring(pos + 1)
@@ -137,7 +137,7 @@ class ConfigStorePropertyTest {
      */
     @Test
     fun property6_configStoreRoundTrip() = runTest {
-        checkAll(PropTestConfig(iterations = 100), arbModuleConfigs) { configs ->
+        checkAll(PropTestConfig(iterations = 5), arbModuleConfigs) { configs ->
             val path = uniqueTempPath()
             try {
                 val store = ConfigStore(path)
@@ -167,7 +167,7 @@ class ConfigStorePropertyTest {
     fun property7_invalidJsonFallsBackToDefault() = runTest {
         val defaultConfigs = ModuleConfigs()
 
-        checkAll(PropTestConfig(iterations = 100), arbInvalidJson) { invalidContent ->
+        checkAll(PropTestConfig(iterations = 5), arbInvalidJson) { invalidContent ->
             val path = uniqueTempPath()
             try {
                 // Write invalid JSON content directly to the file

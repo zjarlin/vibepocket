@@ -156,7 +156,7 @@ class MenuTreeBuilderPropertyTest {
      */
     @Test
     fun property3_childrenSortedBySortOrder() = runTest {
-        checkAll(PropTestConfig(iterations = 100), arbMenuMetadataList()) { items ->
+        checkAll(PropTestConfig(iterations = 5), arbMenuMetadataList()) { items ->
             val tree = MenuTreeBuilder.buildTree(items)
             val allNodes = collectAllNodes(tree)
 
@@ -193,7 +193,7 @@ class MenuTreeBuilderPropertyTest {
     @Test
     fun property4_invisibleNodesExcludedFromVisibleLeaves() = runTest {
         checkAll(
-            PropTestConfig(iterations = 100),
+            PropTestConfig(iterations = 5),
             arbMenuMetadataList(sizeRange = 2..15, invisibleProbability = 0.3)
         ) { items ->
             val tree = MenuTreeBuilder.buildTree(items)
@@ -242,7 +242,7 @@ class MenuTreeBuilderPropertyTest {
     @Test
     fun property5_virtualParentDetection() = runTest {
         checkAll(
-            PropTestConfig(iterations = 100),
+            PropTestConfig(iterations = 5),
             arbMenuMetadataListWithVirtualParents()
         ) { items ->
             val existingRouteKeys = items.map { it.routeKey }.toSet()

@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import site.addzero.component.glass.*
-import site.addzero.vibepocket.model.MODEL_VERSIONS
+import site.addzero.vibepocket.model.SUNO_MODELS
 import site.addzero.vibepocket.model.VOCAL_GENDERS
 
 /**
@@ -72,7 +72,7 @@ fun ParamsStep(
                 Text("⚙️ 模型与声音", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
 
                 FieldLabel("模型版本")
-                ChipSelector(options = MODEL_VERSIONS, selected = mv, onSelect = onMvChange)
+                ChipSelector(options = SUNO_MODELS, selected = mv, onSelect = onMvChange)
 
                 FieldLabel("声音性别")
                 ChipSelector(

@@ -1,30 +1,150 @@
 package site.addzero.vibepocket.api
 
 import de.jensklingenberg.ktorfit.http.*
-import site.addzero.vibepocket.model.SunoMusicRequest
-import site.addzero.vibepocket.model.SunoTask
+import site.addzero.vibepocket.model.*
 
 /**
- * Suno API 接口定义（Ktorfit 声明式）
+ * Suno API 全量接口定义（Ktorfit 声明式）
+ *
+ * Base URL: https://api.sunoapi.org/api/v1/
+ * 文档: https://docs.sunoapi.org
  */
 interface SunoApi {
 
-    /**
-     * 提交音乐生成任务
-     * @return 任务 ID（包装在 ApiResult 中）
-     */
-    @POST("suno/submit/music")
-    suspend fun generateMusic(
-        @Body request: SunoMusicRequest,
-        @Header("Authorization") auth: String,
-    ): ApiResult<String>
+    // ── 音乐生成 ─────────────────────────────────────────────
 
-    /**
-     * 查询单个任务状态
-     */
-    @GET("suno/fetch/{taskId}")
-    suspend fun fetchTask(
-        @Path("taskId") taskId: String,
+    /** 生成音乐 */
+    @POST("generate")
+    suspend fun generateMusic(
+        @Body request: SunoGenerateRequest,
         @Header("Authorization") auth: String,
-    ): ApiResult<SunoTask>
+    ): ApiResult<SunoSubmitData>
+
+    /** 扩展音乐 */
+    @POST("generate/extend")
+    suspend fun extendMusic(
+        @Body request: SunoExtendRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoSubmitData>
+
+    /** 上传并翻唱 */
+    @POST("generate/upload-cover")
+    suspend fun uploadCover(
+        @Body request: SunoUploadCoverRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoSubmitData>
+
+    /** 上传并扩展 */
+    @POST("generate/upload-extend")
+    suspend fun uploadExtend(
+        @Body request: SunoUploadExtendRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoSubmitData>
+
+    /** 添加人声 */
+    @POST("generate/add-vocals")
+    suspend fun addVocals(
+        @Body request: SunoAddVocalsRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoSubmitData>
+
+    /** 添加乐器 */
+    @POST("generate/add-instrumental")
+    suspend fun addInstrumental(
+        @Body request: SunoAddInstrumentalRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoSubmitData>
+
+    /** 生成音乐封面 */
+    @POST("generate/music-cover")
+    suspend fun generateMusicCover(
+        @Body request: SunoMusicCoverRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoSubmitData>
+
+    /** 替换音乐片段 */
+    @POST("generate/replace-section")
+    suspend fun replaceSection(
+        @Body request: SunoReplaceSectionRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoSubmitData>
+
+    // ── 查询 ─────────────────────────────────────────────────
+
+    /** 查询音乐生成详情 */
+    @GET("generate/record-info")
+    suspend fun getTaskDetail(
+        @Query("taskId") taskId: String,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoTaskDetail>
+
+    /** 查询音乐封面详情 */
+    @GET("generate/cover-record-info")
+    suspend fun getCoverDetail(
+        @Query("taskId") taskId: String,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoTaskDetail>
+
+    // ── 歌词 ─────────────────────────────────────────────────
+
+    /** 生成歌词 */
+    @POST("lyrics")
+    suspend fun generateLyrics(
+        @Body request: SunoLyricsRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoSubmitData>
+
+    /** 查询歌词生成详情 */
+    @GET("lyrics/record-info")
+    suspend fun getLyricsDetail(
+        @Query("taskId") taskId: String,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoLyricsTaskDetail>
+
+    /** 获取带时间戳歌词 */
+    @POST("get-timestamped-lyrics")
+    suspend fun getTimestampedLyrics(
+        @Body request: SunoTimestampedLyricsRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoTimestampedLyricsData>
+
+    // ── Persona ──────────────────────────────────────────────
+
+    /** 生成 Persona */
+    @POST("generate/generate-persona")
+    suspend fun generatePersona(
+        @Body request: SunoGeneratePersonaRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoPersonaData>
+
+    // ── 音频处理 ─────────────────────────────────────────────
+
+    /** 人声分离 */
+    @POST("vocal-removal/generate")
+    suspend fun vocalRemoval(
+        @Body request: SunoVocalRemovalRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoSubmitData>
+
+    /** 提升音乐风格 */
+    @POST("boost-music-style")
+    suspend fun boostMusicStyle(
+        @Body request: SunoBoostStyleRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoBoostStyleData>
+
+    /** WAV 格式转换 */
+    @POST("wav")
+    suspend fun convertToWav(
+        @Body request: SunoWavRequest,
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoSubmitData>
+
+    // ── 账户 ─────────────────────────────────────────────────
+
+    /** 查询剩余积分 */
+    @GET("get-credits")
+    suspend fun getCredits(
+        @Header("Authorization") auth: String,
+    ): ApiResult<SunoCredits>
 }

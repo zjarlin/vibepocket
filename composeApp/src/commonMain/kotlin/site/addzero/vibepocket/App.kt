@@ -26,6 +26,7 @@ import site.addzero.vibepocket.settings.getPlatformConfigPath
 @Composable
 @Preview
 fun App() {
+
     // 从默认菜单元数据构建菜单树
     val menuTree = remember { MenuTreeBuilder.buildTree(defaultMenuItems) }
     // 扁平化为可见叶节点列表，用于确定默认路由
@@ -52,7 +53,7 @@ fun App() {
             // 路由分发：根据 routeKey 全限定名匹配对应页面
             when (selectedRouteKey) {
                 "site.addzero.vibepocket.music.MusicVibeScreen" -> MusicVibeScreen(configStore)
-                "site.addzero.vibepocket.screens.ProgrammingScreen" -> PlaceholderScreen("💻 编程", "即将开放")
+                "site.addzero.vibepocket.screens.ImageScreen" -> PlaceholderScreen("🖼️ 图片", "即将开放")
                 "site.addzero.vibepocket.screens.VideoScreen" -> PlaceholderScreen("🎬 视频", "即将开放")
                 "site.addzero.vibepocket.settings.SettingsPage" -> SettingsPage(configStore)
                 else -> {

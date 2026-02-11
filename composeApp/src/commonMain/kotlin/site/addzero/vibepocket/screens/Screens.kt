@@ -30,7 +30,7 @@ fun MusicScreen() {
 }
 
 @Composable
-fun ProgrammingScreen() {
+fun ImageScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -38,7 +38,7 @@ fun ProgrammingScreen() {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "💻 Programming",
+            text = "🖼️ Image",
             color = Color.White,
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold
