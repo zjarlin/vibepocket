@@ -1,22 +1,5 @@
+@file:Suppress("unused")
 package site.addzero.vibepocket.api
 
-import kotlinx.serialization.Serializable
-
-/**
- * 后端统一响应包装，对应 site.addzero.common.models.result.Result
- */
-@Serializable
-data class ApiResult<T>(
-    val code: Int = 0,
-    val msg: String? = null,
-    val data: T? = null,
-) {
-    val isSuccess get() = code == 200 || code == 0
-
-    fun getOrThrow(): T {
-        if (data != null) return data
-        throw RuntimeException(msg ?: "API 返回空数据 (code=$code)")
-    }
-
-    fun getOrNull(): T? = data
-}
+// Re-export from api-suno module for backward compatibility
+typealias ApiResult<T> = site.addzero.vibepocket.api.suno.ApiResult<T>

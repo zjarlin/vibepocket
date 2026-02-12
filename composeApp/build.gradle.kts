@@ -1,5 +1,5 @@
 plugins {
-    id("site.addzero.conventions.compose-app")
+    id("site.addzero.buildlogic.kmp.cmp-app")
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.com.google.devtools.ksp.com.google.devtools.ksp.gradle.plugin)
     alias(libs.plugins.de.jensklingenberg.ktorfit.ktorfit.lib.light)
@@ -12,29 +12,34 @@ ktorfit {
     compilerPluginVersion.set("2.3.3")
 }
 dependencies {
-    kspCommonMainMetadata(libs.ioc.processor)
+    kspCommonMainMetadata(libs.site.addzero.ioc.processor.v2026)
 }
 
 kotlin {
     dependencies {
-        implementation(libs.tool.json)
-        implementation(libs.network.starter)
-        implementation(libs.ioc.core)
-        implementation(libs.filekit.core)
-        implementation(libs.filekit.dialogs)
-        implementation(libs.filekit.dialogs.compose)
-        implementation(libs.filekit.coil)
+        implementation(libs.site.addzero.tool.json.v2026)
+        implementation(libs.site.addzero.network.starter.v0)
+        implementation(libs.site.addzero.ioc.core.v2026)
+        implementation(libs.io.github.vinceglb.filekit.core)
+        implementation(libs.io.github.vinceglb.filekit.dialogs)
+        implementation(libs.io.github.vinceglb.filekit.dialogs.compose)
+        implementation(libs.io.github.vinceglb.filekit.coil)
 //       implementation("site.addzero:addzero-route-core:2025.09.29")
 //        implementation("site.addzero:addzero-route-processor:2025.09.29")
 
-        implementation(projects.glassComponents)
+        implementation(project(":lib:glass-components"))
+        implementation(project(":lib:api-qqmusic"))
+        implementation(project(":lib:api-suno"))
+        implementation(project(":lib:api-netease"))
+
+
         implementation(libs.de.jensklingenberg.ktorfit.ktorfit.lib.light)
-        implementation(libs.ktor.client.core)
-        implementation(libs.ktor.client.cio)
+        implementation(libs.io.ktor.ktor.client.core.v3)
+        implementation(libs.io.ktor.ktor.client.cio.v3)
         implementation(libs.io.ktor.ktor.client.content.negotiation)
         implementation(libs.io.ktor.ktor.serialization.kotlinx.json)
         implementation(libs.io.github.khubaibkhan4.mediaplayer.kmp)
-        implementation(libs.kotlin.gadulka)
+        implementation(libs.eu.iamkonstantin.kotlin.gadulka)
         implementation(libs.org.jetbrains.androidx.navigation3.navigation3.ui)
         implementation(libs.org.jetbrains.androidx.lifecycle.lifecycle.viewmodel.navigation3)
 

@@ -1,21 +1,12 @@
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-
-rootProject.name =rootDir.name
+rootProject.name = rootDir.name
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-includeBuild("build-logic")
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 //  id("site.addzero.gradle.plugin.addzero-git-dependency") version "+"
-  id("site.addzero.gradle.plugin.modules-buddy") version "+"
-  id("site.addzero.gradle.plugin.repo-buddy") version "+"
+    id("site.addzero.gradle.plugin.modules-buddy") version "+"
+    id("site.addzero.gradle.plugin.repo-buddy") version "+"
+    id("site.addzero.gradle.plugin.addzero-git-dependency") version "+"
+
 //    id("io.gitee.zjarlin.auto-modules") version "0.0.608"
 }
-
-include(":glass-components")
 
