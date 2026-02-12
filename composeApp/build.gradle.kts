@@ -17,7 +17,7 @@ dependencies {
 
 kotlin {
     dependencies {
-        implementation(libs.site.addzero.tool.json.v2026)
+        implementation(libs.site.addzero.tool.json)
         implementation(libs.site.addzero.network.starter.v0)
         implementation(libs.site.addzero.ioc.core.v2026)
         implementation(libs.io.github.vinceglb.filekit.core)
@@ -34,8 +34,8 @@ kotlin {
 
 
         implementation(libs.de.jensklingenberg.ktorfit.ktorfit.lib.light)
-        implementation(libs.io.ktor.ktor.client.core.v3)
-        implementation(libs.io.ktor.ktor.client.cio.v3)
+        implementation(libs.io.ktor.ktor.client.core)
+        implementation(libs.io.ktor.ktor.client.cio)
         implementation(libs.io.ktor.ktor.client.content.negotiation)
         implementation(libs.io.ktor.ktor.serialization.kotlinx.json)
         implementation(libs.io.github.khubaibkhan4.mediaplayer.kmp)
