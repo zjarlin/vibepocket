@@ -18,25 +18,9 @@ import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
 import site.addzero.vibepocket.api.SunoApiClient
 import site.addzero.vibepocket.model.*
-
-@Serializable
-private data class CoverConfigResp(val key: String, val value: String?)
-
-/** 从内嵌 server 读取配置 */
-private suspend fun fetchCoverConfig(key: String): String? {
-    val client = HttpClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
-    return try {
-        client.get("http://localhost:8080/api/config/$key").body<CoverConfigResp>().value
-    } catch (_: Exception) {
-        null
-    } finally {
-        client.close()
-    }
-}
 
 /**
  * 翻唱上传参数表单 Dialog

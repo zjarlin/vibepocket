@@ -128,7 +128,6 @@ object AudioPlayerManager {
         }
     }
 
-    @OptIn(eu.iamkonstantin.kotlin.gadulka.UnstableApi::class)
     private fun syncStateFromPlayer() {
         // 映射 GadulkaPlayerState → PlayerState
         val gadulkaState = player.currentPlayerState()
@@ -137,7 +136,6 @@ object AudioPlayerManager {
             GadulkaPlayerState.PAUSED -> PlayerState.PAUSED
             GadulkaPlayerState.BUFFERING -> PlayerState.BUFFERING
             GadulkaPlayerState.IDLE -> PlayerState.IDLE
-            GadulkaPlayerState.ERROR -> PlayerState.ERROR
             null -> _playerState.value // 保持当前状态
         }
 
@@ -157,6 +155,6 @@ object AudioPlayerManager {
         val totalSeconds = ms / 1000
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
-        return "%d:%02d".format(minutes, seconds)
+        return "$minutes:${seconds.toString().padStart(2, '0')}"
     }
 }

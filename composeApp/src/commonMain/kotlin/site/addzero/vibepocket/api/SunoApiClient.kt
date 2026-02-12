@@ -6,7 +6,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.date.*
 import kotlinx.coroutines.delay
-import kotlinx.serialization.json.Json
+import site.addzero.core.network.apiClient
 import site.addzero.vibepocket.model.*
 
 /**
@@ -18,20 +18,12 @@ class SunoApiClient(
     private val apiToken: String,
     baseUrl: String = "https://api.sunoapi.org/api/v1",
 ) {
-    private val client = HttpClient {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                encodeDefaults = true
-            })
-        }
-    }
 
-    private val api: SunoApi = Ktorfit.Builder()
+    val sunoKtorfit = Ktorfit.Builder()
         .baseUrl(baseUrl.trimEnd('/') + "/")
-        .httpClient(client)
+        .httpClient(apiClient)
         .build()
-        .createSunoApi()
+    private val api = sunoKtorfit .createSunoApi()
 
     private val auth get() = "Bearer $apiToken"
 

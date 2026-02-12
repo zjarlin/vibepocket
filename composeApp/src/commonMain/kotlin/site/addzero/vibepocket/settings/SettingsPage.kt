@@ -24,7 +24,11 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import site.addzero.component.glass.*
+import site.addzero.component.glass.GlassCard
+import site.addzero.component.glass.GlassTextField
+import site.addzero.component.glass.GlassTheme
+import site.addzero.component.glass.NeonGlassButton
+import site.addzero.ioc.annotation.Bean
 
 @Serializable
 private data class ConfigResp(val key: String, val value: String?)
@@ -59,6 +63,7 @@ private enum class SettingsTab(val title: String, val icon: String) {
  * 设置页面 — 从内嵌 server DB 读写配置，不再依赖 ConfigStore。
  */
 @Composable
+@Bean(tags = ["screen"])
 fun SettingsPage() {
     val scope = rememberCoroutineScope()
     var selectedTab by remember { mutableStateOf(SettingsTab.MUSIC) }

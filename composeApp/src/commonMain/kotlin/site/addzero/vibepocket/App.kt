@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,13 +19,8 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import site.addzero.component.glass.GlassTheme
 import site.addzero.vibepocket.auth.WelcomePage
-import site.addzero.vibepocket.music.GadulkaPlayerDemo
-import site.addzero.vibepocket.music.MusicVibeScreen
-import site.addzero.vibepocket.navigation.MenuNodeSidebar
-import site.addzero.vibepocket.navigation.MenuTreeBuilder
-import site.addzero.vibepocket.navigation.RouteKey
-import site.addzero.vibepocket.navigation.defaultMenuItems
-import site.addzero.vibepocket.settings.SettingsPage
+import site.addzero.vibepocket.music.ioc.generated.iocComposables
+import site.addzero.vibepocket.navigation.*
 
 private val WELCOME_ROUTE = RouteKey("site.addzero.vibepocket.auth.WelcomePage")
 
@@ -45,59 +41,80 @@ fun App() {
     MaterialTheme {
         if (!isSetupDone) {
             // 欢迎页全屏，不显示侧边栏
-            NavDisplay(
-                backStack = backStack,
-                onBack = {},
-                entryProvider = { routeKey ->
-                    NavEntry(routeKey) {
-                        WelcomePage(
-                            onEnter = { token, url ->
-                                sunoToken = token
-                                sunoBaseUrl = url
-                                backStack.clear()
-                                backStack.add(homeRoute)
-                                isSetupDone = true
-                            },
-                        )
-                    }
-                },
-            )
+            isSetupDone = WelComScreen(backStack, sunoToken, sunoBaseUrl, homeRoute, isSetupDone)
         } else {
             // 主界面：侧边栏 + NavDisplay
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(GlassTheme.DarkBackground)
-            ) {
-                MenuNodeSidebar(
-                    menuTree = menuTree,
-                    selectedRouteKey = backStack.lastOrNull()?.key ?: "",
-                    onLeafClick = { node ->
-                        backStack.clear()
-                        backStack.add(RouteKey(node.metadata.routeKey))
-                    },
-                    title = "Vibepocket",
-                )
+            MainScreen(menuTree, backStack)
+        }
+    }
+}
 
-                NavDisplay(
-                    backStack = backStack,
-                    onBack = { backStack.removeLastOrNull() },
-                    entryProvider = { routeKey ->
-                        NavEntry(routeKey) {
-                            when (routeKey.key) {
-                                "site.addzero.vibepocket.music.MusicVibeScreen" -> MusicVibeScreen()
-                                "site.addzero.vibepocket.music.GadulkaPlayerDemo" -> GadulkaPlayerDemo()
-                                "site.addzero.vibepocket.screens.ImageScreen" -> PlaceholderScreen("🖼️ 图片", "即将开放")
-                                "site.addzero.vibepocket.screens.VideoScreen" -> PlaceholderScreen("🎬 视频", "即将开放")
-                                "site.addzero.vibepocket.settings.SettingsPage" -> SettingsPage()
-                                else -> PlaceholderScreen("❓", "未知页面")
-                            }
-                        }
+@Composable
+private fun MainScreen(
+    menuTree: List<MenuNode>,
+    backStack: SnapshotStateList<RouteKey>
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(GlassTheme.DarkBackground)
+    ) {
+        MenuNodeSidebar(
+            menuTree = menuTree,
+            selectedRouteKey = backStack.lastOrNull()?.key ?: "",
+            onLeafClick = { node ->
+                backStack.clear()
+                backStack.add(RouteKey(node.metadata.routeKey))
+            },
+            title = "Vibepocket",
+        )
+
+        NavDisplay(
+            backStack = backStack,
+            onBack = { backStack.removeLastOrNull() },
+            entryProvider = { routeKey ->
+                NavEntry(routeKey) {
+                    val function = iocComposables[routeKey.key]
+                    function?.invoke() ?: return@NavEntry PlaceholderScreen("❓", "未知页面")
+                    when (routeKey.key) {
+                        "site.addzero.vibepocket.screens.ImageScreen" -> PlaceholderScreen("🖼️ 图片", "即将开放")
+                        "site.addzero.vibepocket.screens.VideoScreen" -> PlaceholderScreen("🎬 视频", "即将开放")
+                    }
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun WelComScreen(
+    backStack: SnapshotStateList<RouteKey>,
+    sunoToken: String,
+    sunoBaseUrl: String,
+    homeRoute: RouteKey,
+    isSetupDone: Boolean
+): Boolean {
+    var sunoToken1 = sunoToken
+    var sunoBaseUrl1 = sunoBaseUrl
+    var isSetupDone1 = isSetupDone
+    NavDisplay(
+        backStack = backStack,
+        onBack = {},
+        entryProvider = { routeKey ->
+            NavEntry(routeKey) {
+                WelcomePage(
+                    onEnter = { token, url ->
+                        sunoToken1 = token
+                        sunoBaseUrl1 = url
+                        backStack.clear()
+                        backStack.add(homeRoute)
+                        isSetupDone1 = true
                     },
                 )
             }
-        }
-    }
+        },
+    )
+    return isSetupDone1
 }
 
 @Composable

@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
+import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayerState
+import eu.iamkonstantin.kotlin.gadulka.rememberGadulkaLiveState
 import site.addzero.ioc.annotation.Bean
 
 /**
@@ -20,12 +22,12 @@ import site.addzero.ioc.annotation.Bean
  * 支持：播放/暂停、停止、音量调节、进度条、播放速率调节。
  */
 @Composable
-@Bean
+@Bean(tags = ["screen"])
 fun GadulkaPlayerDemo(
     modifier: Modifier = Modifier,
 ) {
     val player = remember { GadulkaPlayer() }
-    val state = rememberPlayerState(player)
+    val liveState = rememberGadulkaLiveState()
 
     // 示例音频 URL（公共域 MP3）
     var audioUrl by remember {
@@ -74,27 +76,25 @@ fun GadulkaPlayerDemo(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text("状态:", style = MaterialTheme.typography.labelMedium)
-                    val statusText = when (state.playerState) {
-                        PlayerState.IDLE -> "空闲"
-                        PlayerState.BUFFERING -> "缓冲中..."
-                        PlayerState.PLAYING -> "播放中 ▶"
-                        PlayerState.PAUSED -> "已暂停 ⏸"
-                        PlayerState.ERROR -> "错误 ✗"
+                    val statusText = when (liveState.state) {
+                        GadulkaPlayerState.IDLE -> "空闲"
+                        GadulkaPlayerState.BUFFERING -> "缓冲中..."
+                        GadulkaPlayerState.PLAYING -> "播放中 ▶"
+                        GadulkaPlayerState.PAUSED -> "已暂停 ⏸"
                     }
-                    val statusColor = when (state.playerState) {
-                        PlayerState.PLAYING -> MaterialTheme.colorScheme.primary
-                        PlayerState.ERROR -> MaterialTheme.colorScheme.error
-                        PlayerState.BUFFERING -> MaterialTheme.colorScheme.tertiary
+                    val statusColor = when (liveState.state) {
+                        GadulkaPlayerState.PLAYING -> MaterialTheme.colorScheme.primary
+                        GadulkaPlayerState.BUFFERING -> MaterialTheme.colorScheme.tertiary
                         else -> MaterialTheme.colorScheme.onSurfaceVariant
                     }
                     Text(statusText, color = statusColor, style = MaterialTheme.typography.bodyMedium)
                 }
 
                 // 进度条
-                if (state.duration > 0) {
+                if (liveState.duration > 0) {
                     Column {
                         LinearProgressIndicator(
-                            progress = { (state.position.toFloat() / state.duration).coerceIn(0f, 1f) },
+                            progress = { (liveState.position.toFloat() / liveState.duration).coerceIn(0f, 1f) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(6.dp)
@@ -106,11 +106,11 @@ fun GadulkaPlayerDemo(
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Text(
-                                formatTime(state.position),
+                                formatTime(liveState.position),
                                 style = MaterialTheme.typography.labelSmall,
                             )
                             Text(
-                                formatTime(state.duration),
+                                formatTime(liveState.duration),
                                 style = MaterialTheme.typography.labelSmall,
                             )
                         }
@@ -126,7 +126,7 @@ fun GadulkaPlayerDemo(
         ) {
             FilledTonalButton(
                 onClick = { player.play(audioUrl) },
-                enabled = state.playerState != PlayerState.PLAYING,
+                enabled = liveState.state != GadulkaPlayerState.PLAYING,
             ) {
                 Icon(Icons.Default.PlayArrow, contentDescription = "播放")
                 Spacer(Modifier.width(4.dp))
@@ -135,7 +135,7 @@ fun GadulkaPlayerDemo(
 
             FilledTonalButton(
                 onClick = { player.pause() },
-                enabled = state.playerState == PlayerState.PLAYING,
+                enabled = liveState.state == GadulkaPlayerState.PLAYING,
             ) {
                 Icon(Icons.Default.Pause, contentDescription = "暂停")
                 Spacer(Modifier.width(4.dp))
@@ -144,7 +144,7 @@ fun GadulkaPlayerDemo(
 
             FilledTonalButton(
                 onClick = { player.stop() },
-                enabled = state.playerState == PlayerState.PLAYING || state.playerState == PlayerState.PAUSED,
+                enabled = liveState.state == GadulkaPlayerState.PLAYING || liveState.state == GadulkaPlayerState.PAUSED,
             ) {
                 Icon(Icons.Default.Stop, contentDescription = "停止")
                 Spacer(Modifier.width(4.dp))
@@ -182,7 +182,7 @@ fun GadulkaPlayerDemo(
                     selected = playbackRate == rate,
                     onClick = {
                         playbackRate = rate
-                        player.setPlaybackRate(rate)
+                        player.setRate(rate)
                     },
                     label = { Text("${rate}x") },
                 )
@@ -196,5 +196,5 @@ private fun formatTime(ms: Long): String {
     val totalSeconds = ms / 1000
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
-    return "%d:%02d".format(minutes, seconds)
+    return "$minutes:${seconds.toString().padStart(2, '0')}"
 }

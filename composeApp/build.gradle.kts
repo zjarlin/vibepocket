@@ -16,27 +16,14 @@ dependencies {
 }
 
 kotlin {
-    sourceSets {
-
-        commonTest.dependencies {
-            implementation(libs.io.kotest.kotest.property)
-            implementation(libs.io.kotest.kotest.assertions.core)
-            implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
-        }
-        jvmMain.dependencies {
-            // 桌面端内嵌 Ktor 后端，无需单独部署 server
-            implementation(projects.server)
-        }
-    }
-
     dependencies {
+        implementation(libs.tool.json)
+        implementation(libs.network.starter)
         implementation(libs.ioc.core)
-
         implementation(libs.filekit.core)
         implementation(libs.filekit.dialogs)
         implementation(libs.filekit.dialogs.compose)
         implementation(libs.filekit.coil)
-
 //       implementation("site.addzero:addzero-route-core:2025.09.29")
 //        implementation("site.addzero:addzero-route-processor:2025.09.29")
 
@@ -46,15 +33,28 @@ kotlin {
         implementation(libs.ktor.client.cio)
         implementation(libs.io.ktor.ktor.client.content.negotiation)
         implementation(libs.io.ktor.ktor.serialization.kotlinx.json)
-
         implementation(libs.io.github.khubaibkhan4.mediaplayer.kmp)
         implementation(libs.kotlin.gadulka)
-
         implementation(libs.org.jetbrains.androidx.navigation3.navigation3.ui)
         implementation(libs.org.jetbrains.androidx.lifecycle.lifecycle.viewmodel.navigation3)
 
 //        implementation(projects.shared)
     }
+    sourceSets {
+
+        jvmMain.dependencies {
+            // 桌面端内嵌 Ktor 后端，无需单独部署 server
+            implementation(projects.server)
+            // ktor-server-core needed to access EmbeddedServer type from server module
+            implementation(libs.io.ktor.ktor.server.core.jvm)
+        }
+        commonTest.dependencies {
+            implementation(libs.io.kotest.kotest.property)
+            implementation(libs.io.kotest.kotest.assertions.core)
+            implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
+        }
+    }
+
 
 }
 

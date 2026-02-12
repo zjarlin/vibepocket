@@ -1,6 +1,6 @@
 package site.addzero.vibepocket.auth
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,13 +8,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import site.addzero.component.glass.*
+import site.addzero.ioc.annotation.Bean
 
 /**
  * 欢迎页 — 引导用户输入 Suno API Key 后进入主界面。
@@ -22,6 +22,7 @@ import site.addzero.component.glass.*
  * 全屏玻璃风格，不显示侧边栏。
  */
 @Composable
+@Bean(tags = ["screen"])
 fun WelcomePage(
     onEnter: (sunoToken: String, sunoBaseUrl: String) -> Unit,
 ) {

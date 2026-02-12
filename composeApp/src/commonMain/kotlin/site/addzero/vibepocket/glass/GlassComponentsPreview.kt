@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import site.addzero.component.glass.*
+import site.addzero.ioc.annotation.Bean
 
 val color = GlassColors.DarkBackground
 
@@ -22,6 +23,7 @@ val color = GlassColors.DarkBackground
  */
 @Preview(name = "Glass Button", showBackground = true, backgroundColor = 0xFF0F0F13)
 @Composable
+@Bean(tags = ["screen"])
 fun GlassButtonPreview() {
     Box(
         modifier = Modifier

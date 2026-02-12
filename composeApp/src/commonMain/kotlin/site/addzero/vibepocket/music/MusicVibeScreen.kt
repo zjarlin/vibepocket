@@ -18,8 +18,6 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import site.addzero.component.glass.GlassButton
 import site.addzero.component.glass.GlassColors
 import site.addzero.component.glass.NeonGlassButton
@@ -28,32 +26,15 @@ import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.api.SunoApiClient
 import site.addzero.vibepocket.model.*
 
-private val prettyJson = Json { prettyPrint = true; encodeDefaults = true }
-
-@Serializable
-private data class ConfigResp(val key: String, val value: String?)
-
-/** 从内嵌 server 读取配置 */
-private suspend fun fetchConfig(key: String): String? {
-    val client = HttpClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
-    return try {
-        client.get("http://localhost:8080/api/config/$key").body<ConfigResp>().value
-    } catch (_: Exception) {
-        null
-    } finally {
-        client.close()
-    }
-}
 
 /**
  * 音乐 Vibe 主界面
  * 分屏布局：左侧分步表单，右侧任务进度
  */
 @Composable
-@Bean
+@Bean(tags = ["screen"])
 fun MusicVibeScreen() {
     val scope = rememberCoroutineScope()
-
     // ===== 表单状态 =====
     var currentStep by remember { mutableStateOf(VibeStep.LYRICS) }
     // Step 1: 歌词

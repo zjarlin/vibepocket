@@ -11,6 +11,8 @@ import kotlinx.serialization.json.Json
 import org.babyfish.jimmer.sql.dialect.SQLiteDialect
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.newKSqlClient
+import org.koin.dsl.module
+import org.koin.ktor.plugin.Koin
 import org.sqlite.SQLiteDataSource
 import site.addzero.vibepocket.di.initDatabase
 import site.addzero.vibepocket.plugins.*
@@ -38,11 +40,14 @@ class ConfigRoutesTest {
 
     private fun ApplicationTestBuilder.configureTestApp() {
         application {
+            install(Koin) {
+                modules(module { single<KSqlClient> { sqlClient } })
+            }
             install(ContentNegotiation) {
                 json(Json { prettyPrint = true; isLenient = true; ignoreUnknownKeys = true })
             }
             configureStatusPages()
-            routing { configRoutes(sqlClient) }
+            routing { configRoutes() }
         }
     }
 

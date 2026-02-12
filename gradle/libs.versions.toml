@@ -44,6 +44,8 @@ filekit-core-version = "0.12.0"
 gadulka-version = "1.9.0"
 ioc-processor-version = "2026.02.17"
 ioc-core = "2026.02.16"
+tool-json-version = "2026.02.04"
+network-starter-version = "0.0.672"
 [libraries]
 #---------------------- com.android.tools.build -----------------------
 com-android-tools-build-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
@@ -121,6 +123,8 @@ gadulka = { group = "eu.iamkonstantin.gadulka", name = "gadulka", version.ref = 
 ioc-processor = { group = "site.addzero", name = "ioc-processor", version.ref = "ioc-processor-version" }
 ioc-core = { group = "site.addzero", name = "ioc-core", version.ref = "ioc-core" }
 kotlin-gadulka = { group = "eu.iamkonstantin.kotlin", name = "gadulka", version.ref = "gadulka-version" }
+tool-json = { group = "site.addzero", name = "tool-json", version.ref = "tool-json-version" }
+network-starter = { group = "site.addzero", name = "network-starter", version.ref = "network-starter-version" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }

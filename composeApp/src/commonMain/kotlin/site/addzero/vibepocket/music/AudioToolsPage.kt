@@ -14,7 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.addzero.component.glass.*
+import site.addzero.component.glass.GlassTheme
+import site.addzero.component.glass.NeonGlassCard
+import site.addzero.ioc.annotation.Bean
 
 /**
  * 音频工具入口页面
@@ -23,6 +25,7 @@ import site.addzero.component.glass.*
  * 点击卡片后打开对应的 Dialog。
  */
 @Composable
+@Bean(tags = ["screen"])
 fun AudioToolsPage() {
     var showUploadCoverDialog by remember { mutableStateOf(false) }
 

@@ -17,6 +17,7 @@ import site.addzero.vibepocket.model.SunoTrack
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Property-based tests for history record display completeness.
@@ -79,28 +80,28 @@ class HistoryDisplayPropertyTest {
     fun historyItemHasAllRequiredDisplayFields() = runTest {
         checkAll(PropTestConfig(iterations = 100), arbMusicHistoryItem) { item ->
             // taskId must be present and non-blank
-            assert(item.taskId.isNotBlank()) {
+            assertTrue(item.taskId.isNotBlank(),
                 "taskId must be non-blank, got: '${item.taskId}'"
-            }
+            )
 
             // type must be present and non-blank
-            assert(item.type.isNotBlank()) {
+            assertTrue(item.type.isNotBlank(),
                 "type must be non-blank, got: '${item.type}'"
-            }
+            )
 
             // status must be present and non-blank
-            assert(item.status.isNotBlank()) {
+            assertTrue(item.status.isNotBlank(),
                 "status must be non-blank, got: '${item.status}'"
-            }
+            )
 
             // tracks list must be accessible (not null — it defaults to emptyList)
             assertNotNull(item.tracks, "tracks list must not be null")
 
             // createdAt: when present, must be non-blank
             item.createdAt?.let { createdAt ->
-                assert(createdAt.isNotBlank()) {
+                assertTrue(createdAt.isNotBlank(),
                     "createdAt when present must be non-blank, got: '${createdAt}'"
-                }
+                )
             }
         }
     }
