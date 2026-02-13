@@ -2,6 +2,7 @@ import org.gradle.internal.execution.caching.CachingState.enabled
 
 plugins {
     id("site.addzero.buildlogic.kmp.kmp-server")
+    id("site.addzero.buildlogic.jvm.jvm-ksp-plugin")
 }
 ktor {
     openApi {
@@ -16,12 +17,12 @@ application {
 
 dependencies {
     ksp(libs.site.addzero.ioc.processor.v2026)
-    implementation(libs.site.addzero.ioc.core.v2026)
+    implementation(libs.site.addzero.ioc.core)
 
     implementation(projects.shared)
     implementation(libs.site.addzero.ktor.banner)
-    ksp(libs.org.babyfish.jimmer.jimmer.ksp.v0)
-    implementation(libs.org.babyfish.jimmer.jimmer.sql.kotlin.v0)
+    ksp(libs.org.babyfish.jimmer.jimmer.ksp)
+    implementation(libs.org.babyfish.jimmer.jimmer.sql.kotlin)
     implementation(libs.org.xerial.sqlite.jdbc.v3)
     // ktor-server-openapi 和 ktor-server-routing-openapi 依赖编译器插件，暂时移除
     implementation(libs.io.ktor.ktor.server.swagger)

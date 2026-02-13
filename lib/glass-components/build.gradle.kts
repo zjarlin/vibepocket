@@ -1,3 +1,3 @@
 plugins {
-    id("site.addzero.conventions.compose-lib")
+    id("site.addzero.buildlogic.kmp.cmp-lib")
 }

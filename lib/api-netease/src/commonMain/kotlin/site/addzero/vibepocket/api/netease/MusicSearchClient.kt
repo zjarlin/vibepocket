@@ -34,4 +34,15 @@ object MusicSearchClient {
         .build()
 
     val musicApi = music163Ktorfit.createNeteaseApi()
+
+    /** 搜索歌曲（委托 musicApi） */
+    suspend fun searchSongs(
+        keywords: String,
+        type: Int = 1,
+        limit: Int = 10,
+        offset: Int = 0,
+    ): NeteaseSearchResponse = musicApi.searchSongs(keywords, type, limit, offset)
+
+    /** 获取歌词（委托 musicApi） */
+    suspend fun getLyric(songId: Long): NeteaseLyricResponse = musicApi.getLyric(songId)
 }

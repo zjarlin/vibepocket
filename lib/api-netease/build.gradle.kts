@@ -1,5 +1,5 @@
 plugins {
-    id("site.addzero.conventions.kmp-core")
+    id("site.addzero.buildlogic.kmp.kmp-core")
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.de.jensklingenberg.ktorfit.ktorfit.lib.light)
 }

@@ -1,5 +1,5 @@
 plugins {
-    id("site.addzero.conventions.kmp-core")
+    id("site.addzero.buildlogic.kmp.kmp-core")
 }
 
 //android {

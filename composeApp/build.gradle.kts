@@ -1,11 +1,8 @@
 plugins {
     id("site.addzero.buildlogic.kmp.cmp-app")
-    alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.com.google.devtools.ksp.com.google.devtools.ksp.gradle.plugin)
-    alias(libs.plugins.de.jensklingenberg.ktorfit.ktorfit.lib.light)
-//    alias(libs.plugins.androidMultiplatformLibrary)
+    id("site.addzero.buildlogic.kmp.kmp-ksp-plugin")
+    id("site.addzero.buildlogic.kmp.kmp-ktorfit")
 }
-
 // Ktorfit compiler plugin 兼容性配置
 // Kotlin 2.3.x 需要 compilerPluginVersion = "2.3.3"
 ktorfit {
@@ -19,7 +16,7 @@ kotlin {
     dependencies {
         implementation(libs.site.addzero.tool.json)
         implementation(libs.site.addzero.network.starter.v0)
-        implementation(libs.site.addzero.ioc.core.v2026)
+        implementation(libs.site.addzero.ioc.core)
         implementation(libs.io.github.vinceglb.filekit.core)
         implementation(libs.io.github.vinceglb.filekit.dialogs)
         implementation(libs.io.github.vinceglb.filekit.dialogs.compose)
