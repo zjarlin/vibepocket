@@ -1,7 +1,5 @@
-import org.gradle.internal.execution.caching.CachingState.enabled
-
 plugins {
-    id("site.addzero.buildlogic.kmp.kmp-server")
+    id("site.addzero.buildlogic.kmp.kmp-ktor-server")
     id("site.addzero.buildlogic.jvm.jvm-ksp-plugin")
 }
 ktor {
@@ -18,7 +16,6 @@ application {
 dependencies {
     ksp(libs.site.addzero.ioc.processor.v2026)
     implementation(libs.site.addzero.ioc.core)
-
     implementation(projects.shared)
     implementation(libs.site.addzero.ktor.banner)
     ksp(libs.org.babyfish.jimmer.jimmer.ksp)
@@ -29,9 +26,10 @@ dependencies {
     implementation("site.addzero:tool-api-music-search:2026.01.20")
     implementation("site.addzero:tool-api-suno:2026.02.06")
 
+    testImplementation("io.insert-koin:koin-test:4.2.0-RC1")
+
     // Kotest property testing & assertions for server-side property tests
     testImplementation(libs.io.kotest.kotest.property)
     testImplementation(libs.io.kotest.kotest.assertions.core)
     testImplementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
-    testImplementation("io.insert-koin:koin-test:4.2.0-RC1")
 }
