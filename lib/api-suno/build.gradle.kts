@@ -9,6 +9,9 @@ ktorfit {
 }
 
 kotlin {
+
+
+
     dependencies {
         implementation(libs.de.jensklingenberg.ktorfit.ktorfit.lib.light)
         implementation(libs.io.ktor.ktor.client.core)
