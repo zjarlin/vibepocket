@@ -19,3 +19,4 @@ captures
 node_modules/
 /composeApp/hs_err_pid42727.log
 .kiro
+/kotlin-js-store/wasm/yarn.lock

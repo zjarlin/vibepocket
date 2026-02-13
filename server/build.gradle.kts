@@ -1,8 +1,7 @@
-import org.gradle.internal.execution.caching.CachingState.enabled
-
 plugins {
     id("site.addzero.buildlogic.kmp.kmp-ktor-server")
     id("site.addzero.buildlogic.jvm.jimmer")
+    id("site.addzero.buildlogic.kmp.kmp-koin")
 }
 ktor {
     openApi {

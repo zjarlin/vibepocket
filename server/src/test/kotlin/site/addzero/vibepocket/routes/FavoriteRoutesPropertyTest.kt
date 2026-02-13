@@ -12,6 +12,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import org.babyfish.jimmer.sql.dialect.SQLiteDialect
 import org.babyfish.jimmer.sql.kt.KSqlClient
