@@ -53,12 +53,16 @@ class CodeEmitter(
         ).build()
 
         val classBuilder = TypeSpec.classBuilder(model.name)
-            .addModifiers(KModifier.DATA)
             .addAnnotation(serializableAnnotation)
 
         // KDoc from model description
         if (!model.description.isNullOrBlank()) {
             classBuilder.addKdoc("%L", model.description)
+        }
+
+        // Only add DATA modifier if there are properties (Kotlin requires at least 1 constructor param for data class)
+        if (model.properties.isNotEmpty()) {
+            classBuilder.addModifiers(KModifier.DATA)
         }
 
         val constructorBuilder = FunSpec.constructorBuilder()
@@ -70,11 +74,11 @@ class CodeEmitter(
 
             if (prop.required) {
                 if (prop.defaultValue != null) {
-                    paramBuilder.defaultValue(CodeBlock.of(prop.defaultValue))
+                    paramBuilder.defaultValue(formatDefaultValue(prop.defaultValue, prop.type))
                 }
             } else {
                 if (prop.defaultValue != null) {
-                    paramBuilder.defaultValue(CodeBlock.of(prop.defaultValue))
+                    paramBuilder.defaultValue(formatDefaultValue(prop.defaultValue, prop.type))
                 } else {
                     paramBuilder.defaultValue("null")
                 }
@@ -156,6 +160,27 @@ class CodeEmitter(
     }
 
     /**
+     * 根据类型格式化默认值为合法的 Kotlin 代码。
+     * 字符串类型的默认值需要加引号，数值和布尔值直接使用。
+     * 如果值已经被引号包裹，则直接使用。
+     */
+    private fun formatDefaultValue(value: String, type: TypeRef): CodeBlock {
+        // If value is already a quoted string literal, use it as-is
+        if (value.startsWith("\"") && value.endsWith("\"")) {
+            return CodeBlock.of(value)
+        }
+        return when (type) {
+            is TypeRef.Primitive -> when (type.kotlinType) {
+                "String" -> CodeBlock.of("%S", value)
+                "Boolean" -> CodeBlock.of(value)
+                "Int", "Long", "Double", "Float" -> CodeBlock.of(value)
+                else -> CodeBlock.of("%S", value)
+            }
+            else -> CodeBlock.of("%S", value)
+        }
+    }
+
+    /**
      * 将 TypeRef 映射为 KotlinPoet TypeName。
      */
     internal fun resolveTypeName(typeRef: TypeRef): TypeName = when (typeRef) {
@@ -168,7 +193,9 @@ class CodeEmitter(
             "Boolean" -> Boolean::class.asTypeName()
             else -> ClassName("kotlin", typeRef.kotlinType)
         }
-        is TypeRef.ListType -> List::class.asClassName().parameterizedBy(resolveTypeName(typeRef.itemType))
+        is TypeRef.ListType -> with(ParameterizedTypeName.Companion) {
+            List::class.asClassName().parameterizedBy(resolveTypeName(typeRef.itemType))
+        }
         is TypeRef.Reference -> ClassName("$packageName.models", typeRef.modelName)
         is TypeRef.JsonElement -> ClassName("kotlinx.serialization.json", "JsonElement")
         is TypeRef.Unit -> Unit::class.asTypeName()

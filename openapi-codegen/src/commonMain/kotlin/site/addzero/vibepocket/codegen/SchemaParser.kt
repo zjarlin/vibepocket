@@ -154,16 +154,16 @@ class SchemaParser {
         val schemas = openApi.components?.schemas ?: return emptyList()
 
         return schemas.map { (name, schema) ->
-            convertModel(name, schema)
+            convertModel(name, schema, openApi)
         }
     }
 
-    private fun convertModel(name: String, schema: Schema<*>): ModelIR {
+    private fun convertModel(name: String, schema: Schema<*>, openApi: OpenAPI? = null): ModelIR {
         val requiredProps = schema.required?.toSet() ?: emptySet()
 
         // 处理 allOf: 合并所有子 schema 的属性
         val properties = if (!schema.allOf.isNullOrEmpty()) {
-            flattenAllOf(schema.allOf, requiredProps)
+            flattenAllOf(schema.allOf, requiredProps, openApi)
         } else if (!schema.oneOf.isNullOrEmpty() || !schema.anyOf.isNullOrEmpty()) {
             // oneOf/anyOf: 取第一个子 schema 的属性，或回退为空
             val firstSchema = (schema.oneOf ?: schema.anyOf)?.firstOrNull()
@@ -185,17 +185,31 @@ class SchemaParser {
 
     private fun flattenAllOf(
         allOfSchemas: List<Schema<*>>,
-        parentRequired: Set<String>
+        parentRequired: Set<String>,
+        openApi: OpenAPI? = null
     ): List<PropertyIR> {
         val allProperties = mutableListOf<PropertyIR>()
         val seenNames = mutableSetOf<String>()
 
         for (subSchema in allOfSchemas) {
-            // 如果子 schema 是 $ref，swagger-parser 已经解析了引用
             val subRequired = subSchema.required?.toSet() ?: emptySet()
             val combinedRequired = parentRequired + subRequired
 
-            val props = extractProperties(subSchema, combinedRequired)
+            // 处理 $ref 引用：swagger-parser 在 readContents 中可能不完全解析 $ref
+            val resolvedSchema = if (subSchema.properties.isNullOrEmpty() && subSchema.`$ref` != null) {
+                val refName = subSchema.`$ref`.substringAfterLast("/")
+                openApi?.components?.schemas?.get(refName) ?: subSchema
+            } else {
+                subSchema
+            }
+
+            // 递归处理嵌套的 allOf
+            val props = if (!resolvedSchema.allOf.isNullOrEmpty()) {
+                flattenAllOf(resolvedSchema.allOf, combinedRequired, openApi)
+            } else {
+                extractProperties(resolvedSchema, combinedRequired)
+            }
+
             for (prop in props) {
                 if (seenNames.add(prop.name)) {
                     allProperties.add(prop)

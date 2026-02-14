@@ -16,6 +16,7 @@ import org.koin.ktor.plugin.Koin
 import org.sqlite.SQLiteDataSource
 import site.addzero.vibepocket.di.initDatabase
 import site.addzero.vibepocket.plugins.*
+import site.addzero.vibepocket.plugins.ioc.generated.iocModule
 import javax.sql.DataSource
 import kotlin.test.*
 

@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import site.addzero.component.glass.*
-import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.model.*
 
 @Composable

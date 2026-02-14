@@ -36,51 +36,8 @@ object MusicSearchClient {
         .httpClient(apiClient)
         .build()
 
-    val musicApi: NeteaseApi = music163Ktorfit.createNeteaseApi()
+    val musicApi = music163Ktorfit.createNeteaseApi()
 
-    // ── 业务便捷方法 ────────────────────────────────────────
-
-    /** 搜索歌曲 */
-    suspend fun searchSongs(keywords: String, limit: Int = 30, offset: Int = 0): List<NeteaseSearchSong> {
-        val resp = musicApi.searchSongs(keywords, limit = limit, offset = offset)
-        return resp.result?.songs ?: emptyList()
-    }
-
-    /** 搜索歌手 */
-    suspend fun searchArtists(keywords: String, limit: Int = 30, offset: Int = 0): List<NeteaseArtist> {
-        val resp = musicApi.searchArtists(keywords, limit = limit, offset = offset)
-        return resp.result?.artists ?: emptyList()
-    }
-
-    /** 搜索专辑 */
-    suspend fun searchAlbums(keywords: String, limit: Int = 30, offset: Int = 0): List<NeteaseAlbum> {
-        val resp = musicApi.searchAlbums(keywords, limit = limit, offset = offset)
-        return resp.result?.albums ?: emptyList()
-    }
-
-    /** 搜索歌单 */
-    suspend fun searchPlaylists(keywords: String, limit: Int = 30, offset: Int = 0): List<NeteasePlaylist> {
-        val resp = musicApi.searchPlaylists(keywords, limit = limit, offset = offset)
-        return resp.result?.playlists ?: emptyList()
-    }
-
-    /** 根据歌词片段搜索歌曲 */
-    suspend fun searchByLyric(lyricFragment: String, limit: Int = 20): List<NeteaseLyricSearchSong> {
-        val resp = musicApi.searchByLyric(lyricFragment, limit = limit)
-        return resp.result?.songs ?: emptyList()
-    }
-
-    /** 获取歌词 */
-    suspend fun getLyric(songId: Long): NeteaseLyricResponse {
-        return musicApi.getLyric(songId)
-    }
-
-    /** 获取歌曲详情 */
-    suspend fun getSongDetail(songIds: List<Long>): List<NeteaseSearchSong> {
-        val ids = "[${songIds.joinToString(",")}]"
-        val resp = musicApi.getSongDetail(ids)
-        return resp.songs ?: emptyList()
-    }
 
     /**
      * 根据歌名和歌手搜索歌曲
@@ -90,13 +47,15 @@ object MusicSearchClient {
      */
     suspend fun searchBySongAndArtist(songName: String, artistName: String? = null): List<NeteaseSearchSong> {
         val keywords = if (artistName != null) "$songName $artistName" else songName
-        val songs = searchSongs(keywords, limit = 10)
+        val songs = musicApi.searchSongs(keywords, limit = 10)
+        val result = songs.result
         return if (artistName != null) {
-            songs.filter { song ->
+            val filter = result?.songs?.filter { song ->
                 song.artists.any { it.name.contains(artistName, ignoreCase = true) }
             }
+            filter ?: emptyList()
         } else {
-            songs
+            result?.songs ?: emptyList()
         }
     }
 
@@ -110,7 +69,7 @@ object MusicSearchClient {
     suspend fun getLyricBySongName(songName: String, artistName: String? = null): NeteaseLyricResponse? {
         val songs = searchBySongAndArtist(songName, artistName)
         if (songs.isEmpty()) return null
-        return getLyric(songs.first().id)
+        return musicApi.getLyric(songs.first().id)
     }
 
     /**
@@ -126,14 +85,13 @@ object MusicSearchClient {
         limit: Int = 5,
         filterEmpty: Boolean = true,
     ): List<SongWithLyric> {
-        val songs = searchByLyric(lyricFragment, limit = limit)
-        return songs.mapNotNull { lyricSong ->
+        val songs = musicApi.searchByLyric(lyricFragment, limit = limit).result?.songs
+        return songs?.mapNotNull { lyricSong ->
             try {
-                val lyric = getLyric(lyricSong.id)
+                val lyric = musicApi.getLyric(lyricSong.id)
                 if (filterEmpty && lyric.lrc?.lyric.isNullOrBlank()) {
                     null
                 } else {
-                    // 转为通用 Song 类型
                     val song = NeteaseSearchSong(
                         id = lyricSong.id,
                         name = lyricSong.name,

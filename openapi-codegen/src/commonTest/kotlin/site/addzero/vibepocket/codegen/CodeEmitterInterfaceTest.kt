@@ -143,7 +143,10 @@ class CodeEmitterInterfaceTest {
         val op = OperationIR("removeFavorite", HttpMethod.DELETE, "api/favorites/{trackId}", null, emptyList(), null, TypeRef.Unit)
         val iface = ApiInterfaceIR("FavoritesApi", listOf(op))
         val output = emitter.emitInterface(iface).toString()
-        assertTrue(output.contains(": Unit"), "Expected Unit return type, got:\n$output")
+        // KotlinPoet omits Unit return type (idiomatic Kotlin), so we verify no other return type is present
+        assertTrue(!output.contains(": List<"), "Should not have List return type, got:\n$output")
+        assertTrue(!output.contains(": FavoriteItem"), "Should not have model return type, got:\n$output")
+        assertTrue(output.contains("fun removeFavorite()"), "Expected function without explicit return type, got:\n$output")
     }
 
     @Test
@@ -279,7 +282,8 @@ class CodeEmitterInterfaceTest {
         assertTrue(output.contains(": FavoriteItem"))
         assertTrue(output.contains("@DELETE(\"api/favorites/{trackId}\")"))
         assertTrue(output.contains("@Path(\"trackId\") trackId: String"))
-        assertTrue(output.contains(": Unit"))
+        // KotlinPoet omits Unit return type (idiomatic Kotlin)
+        assertTrue(output.contains("fun removeFavorite("), "Expected removeFavorite function, got:\n$output")
         assertTrue(output.contains("List all favorites"))
     }
 }

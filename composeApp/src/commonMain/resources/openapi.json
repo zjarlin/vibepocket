@@ -32,7 +32,7 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/FavoriteItem" }
+                  "items": { "$ref": "#/components/schemas/FavoriteResponse" }
                 }
               }
             }
@@ -56,7 +56,7 @@
             "description": "新增的收藏项",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/FavoriteItem" }
+                "schema": { "$ref": "#/components/schemas/FavoriteResponse" }
               }
             }
           }
@@ -97,6 +97,7 @@
         }
       }
     },
+
     "/api/suno/history": {
       "get": {
         "tags": ["history"],
@@ -109,7 +110,7 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/MusicHistoryItem" }
+                  "items": { "$ref": "#/components/schemas/HistoryResponse" }
                 }
               }
             }
@@ -124,7 +125,7 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/MusicHistorySaveRequest" }
+              "schema": { "$ref": "#/components/schemas/HistorySaveRequest" }
             }
           }
         },
@@ -133,7 +134,7 @@
             "description": "保存的历史项",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/MusicHistoryItem" }
+                "schema": { "$ref": "#/components/schemas/HistoryResponse" }
               }
             }
           }
@@ -152,7 +153,7 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/PersonaItem" }
+                  "items": { "$ref": "#/components/schemas/PersonaResponse" }
                 }
               }
             }
@@ -176,7 +177,7 @@
             "description": "保存的 Persona",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/PersonaItem" }
+                "schema": { "$ref": "#/components/schemas/PersonaResponse" }
               }
             }
           }
@@ -368,6 +369,7 @@
       }
     }
   },
+
   "components": {
     "schemas": {
       "FavoriteRequest": {
@@ -383,7 +385,7 @@
           "duration": { "type": "number", "format": "double", "description": "时长（秒）" }
         }
       },
-      "FavoriteItem": {
+      "FavoriteResponse": {
         "type": "object",
         "required": ["id", "trackId", "taskId"],
         "properties": {
@@ -398,7 +400,7 @@
           "createdAt": { "type": "string", "description": "创建时间" }
         }
       },
-      "MusicHistorySaveRequest": {
+      "HistorySaveRequest": {
         "type": "object",
         "required": ["taskId", "status"],
         "properties": {
@@ -407,12 +409,12 @@
           "status": { "type": "string", "description": "状态" },
           "tracks": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/MusicHistoryTrack" },
+            "items": { "$ref": "#/components/schemas/HistoryTrackDto" },
             "description": "关联音轨列表"
           }
         }
       },
-      "MusicHistoryTrack": {
+      "HistoryTrackDto": {
         "type": "object",
         "properties": {
           "id": { "type": "string", "description": "音轨 ID" },
@@ -423,7 +425,7 @@
           "duration": { "type": "number", "format": "double", "description": "时长（秒）" }
         }
       },
-      "MusicHistoryItem": {
+      "HistoryResponse": {
         "type": "object",
         "required": ["id", "taskId", "type", "status"],
         "properties": {
@@ -433,7 +435,7 @@
           "status": { "type": "string", "description": "状态" },
           "tracks": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/MusicHistoryTrack" },
+            "items": { "$ref": "#/components/schemas/HistoryTrackDto" },
             "description": "关联音轨列表"
           },
           "createdAt": { "type": "string", "description": "创建时间" }
@@ -448,7 +450,7 @@
           "description": { "type": "string", "description": "描述" }
         }
       },
-      "PersonaItem": {
+      "PersonaResponse": {
         "type": "object",
         "required": ["id", "personaId", "name", "description"],
         "properties": {

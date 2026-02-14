@@ -10,6 +10,14 @@ ktorfit {
 }
 dependencies {
     kspCommonMainMetadata(libs.site.addzero.ioc.processor.v2026)
+//    kspCommonMainMetadata("site.addzero:apiprovider-processor:2025.09.30")
+    kspCommonMainMetadata(project(":openapi-codegen"))
+    add("kspJvm", project(":openapi-codegen"))
+}
+
+ksp {
+    arg("openapi.spec", "$projectDir/src/commonMain/resources/openapi.json")
+    arg("openapi.package", "site.addzero.vibepocket.api.generated")
 }
 
 kotlin {

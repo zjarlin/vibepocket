@@ -93,9 +93,7 @@ class HistoryRoutesPropertyTest {
 
     private fun ApplicationTestBuilder.configureTestApp(sqlClient: KSqlClient) {
         application {
-            install(ContentNegotiation) {
-                json(json)
-            }
+            install(ContentNegotiation)
             install(Koin) {
                 modules(module { single<KSqlClient> { sqlClient } })
             }
