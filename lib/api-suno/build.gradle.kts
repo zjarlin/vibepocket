@@ -8,7 +8,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.site.addzero.network.starter.v0)
+            implementation(libs.site.addzero.network.starter)
             api(projects.lib.apiMusicSpi)
         }
         commonTest.dependencies {

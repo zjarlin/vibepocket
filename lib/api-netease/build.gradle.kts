@@ -1,12 +1,17 @@
 plugins {
-    id("site.addzero.buildlogic.kmp.kmp-ktorfit")
-    id("site.addzero.buildlogic.kmp.kmp-ktor-client")
+//    id("site.addzero.buildlogic.kmp.kmp-ktorfit")
+//    id("site.addzero.buildlogic.kmp.kmp-ktor-client")
     id("site.addzero.buildlogic.kmp.kmp-json-withtool")
+    id("site.addzero.buildlogic.kmp.kmp-ksp-plugin")
+}
+dependencies {
+    kspCommonMainMetadata("io.github.ltttttttttttt:LazyPeopleHttp:+")
 }
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.site.addzero.network.starter.v0)
+            implementation("io.github.ltttttttttttt:LazyPeopleHttp-lib:+")
+            implementation(libs.site.addzero.network.starter)
             api(projects.lib.apiMusicSpi)
         }
         commonTest.dependencies {

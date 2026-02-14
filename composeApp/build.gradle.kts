@@ -5,9 +5,9 @@ plugins {
 }
 // Ktorfit compiler plugin 兼容性配置
 // Kotlin 2.3.x 需要 compilerPluginVersion = "2.3.3"
-ktorfit {
-    compilerPluginVersion.set("2.3.3")
-}
+//ktorfit {
+//    compilerPluginVersion.set("2.3.3")
+//}
 dependencies {
     kspCommonMainMetadata(libs.site.addzero.ioc.processor)
 //    kspCommonMainMetadata("site.addzero:apiprovider-processor:2025.09.30")
@@ -23,7 +23,7 @@ ksp {
 kotlin {
     dependencies {
         implementation(libs.site.addzero.tool.json)
-        implementation(libs.site.addzero.network.starter.v0)
+        implementation(libs.site.addzero.network.starter)
         implementation(libs.site.addzero.ioc.core)
         implementation(libs.io.github.vinceglb.filekit.core)
         implementation(libs.io.github.vinceglb.filekit.dialogs)
