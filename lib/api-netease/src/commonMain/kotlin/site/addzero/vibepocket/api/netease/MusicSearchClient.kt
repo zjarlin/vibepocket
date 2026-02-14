@@ -104,6 +104,6 @@ object MusicSearchClient {
             } catch (_: Exception) {
                 null
             }
-        }
+        }.orEmpty()
     }
 }
