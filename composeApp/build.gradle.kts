@@ -9,7 +9,7 @@ ktorfit {
     compilerPluginVersion.set("2.3.3")
 }
 dependencies {
-    kspCommonMainMetadata(libs.site.addzero.ioc.processor.v2026)
+    kspCommonMainMetadata(libs.site.addzero.ioc.processor)
 //    kspCommonMainMetadata("site.addzero:apiprovider-processor:2025.09.30")
     kspCommonMainMetadata(project(":openapi-codegen"))
     add("kspJvm", project(":openapi-codegen"))

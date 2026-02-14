@@ -14,7 +14,7 @@ dependencies {
     implementation("site.addzero:tool-api-suno:2026.02.06")
 
     implementation(libs.site.addzero.ioc.core)
-    ksp(libs.site.addzero.ioc.processor.v2026)
+    ksp(libs.site.addzero.ioc.processor)
 
 
     implementation(projects.shared)
