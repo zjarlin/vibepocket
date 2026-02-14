@@ -11,8 +11,8 @@ plugins {
 dependencies {
     kspCommonMainMetadata(libs.site.addzero.ioc.processor)
 //    kspCommonMainMetadata("site.addzero:apiprovider-processor:2025.09.30")
-    kspCommonMainMetadata(project(":openapi-codegen"))
-    add("kspJvm", project(":openapi-codegen"))
+//    kspCommonMainMetadata(project(":openapi-codegen"))
+//    add("kspJvm", project(":openapi-codegen"))
 }
 
 ksp {
@@ -38,7 +38,7 @@ kotlin {
         implementation(project(":lib:api-netease"))
 
 
-        implementation(libs.de.jensklingenberg.ktorfit.ktorfit.lib.light)
+//        implementation(libs.de.jensklingenberg.ktorfit.ktorfit.lib.light)
         implementation(libs.io.ktor.ktor.client.core)
         implementation(libs.io.ktor.ktor.client.cio)
         implementation(libs.io.ktor.ktor.client.content.negotiation)

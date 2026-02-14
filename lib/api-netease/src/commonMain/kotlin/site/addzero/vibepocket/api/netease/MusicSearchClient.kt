@@ -4,7 +4,6 @@ import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.plugins.*
 import io.ktor.http.*
 import site.addzero.core.network.apiClient
-import site.addzero.vibepocket.api.netease.*
 
 /**
  * 网易云音乐 API 客户端
@@ -42,71 +41,52 @@ object MusicSearchClient {
 
     val musicApi = music163Ktorfit.createNeteaseApi()
 
-    /**
-     * 根据歌名和歌手搜索歌曲
-     *
-     * @param songName 歌名
-     * @param artistName 歌手名（可选，用于二次过滤）
-     */
-    suspend fun searchBySongAndArtist(songName: String, artistName: String? = null): List<NeteaseSearchSong> {
-        val keywords = if (artistName != null) "$songName $artistName" else songName
-        val songs = musicApi.searchSongs(keywords, limit = 10)
-        val result = songs.result
-        return if (artistName != null) {
-            val filter = result?.songs?.filter { song ->
-                song.artists.any { it.name.contains(artistName, ignoreCase = true) }
-            }
-            filter ?: emptyList()
-        } else {
-            result?.songs ?: emptyList()
-        }
-    }
+//
+//    /**
+//     * 根据歌名获取歌词
+//     *
+//     * @param songName 歌名
+//     * @param artistName 歌手名（可选，用于精确匹配）
+//     * @return 歌词响应，找不到返回 null
+//     */
+//    suspend fun getLyricBySongName(songName: String, artistName: String? = null): NeteaseLyricResponse? {
+//        val songs = searchBySongAndArtist(songName, artistName)
+//        if (songs.isEmpty()) return null
+//        return musicApi.getLyric(songs.first().id)
+//    }
 
-    /**
-     * 根据歌名获取歌词
-     *
-     * @param songName 歌名
-     * @param artistName 歌手名（可选，用于精确匹配）
-     * @return 歌词响应，找不到返回 null
-     */
-    suspend fun getLyricBySongName(songName: String, artistName: String? = null): NeteaseLyricResponse? {
-        val songs = searchBySongAndArtist(songName, artistName)
-        if (songs.isEmpty()) return null
-        return musicApi.getLyric(songs.first().id)
-    }
-
-    /**
-     * 根据歌词片段获取完整歌词
-     *
-     * @param lyricFragment 歌词片段
-     * @param limit 返回数量限制
-     * @param filterEmpty 是否过滤空歌词
-     * @return 歌曲与歌词组合列表
-     */
-    suspend fun getLyricsByFragment(
-        lyricFragment: String,
-        limit: Int = 5,
-        filterEmpty: Boolean = true,
-    ): List<SongWithLyric> {
-        val songs = musicApi.searchByLyric(lyricFragment, limit = limit).result?.songs
-        return songs?.mapNotNull { lyricSong ->
-            try {
-                val lyric = musicApi.getLyric(lyricSong.id)
-                if (filterEmpty && lyric.lrc?.lyric.isNullOrBlank()) {
-                    null
-                } else {
-                    val song = NeteaseSearchSong(
-                        id = lyricSong.id,
-                        name = lyricSong.name,
-                        artists = lyricSong.artists,
-                        album = lyricSong.album,
-                        duration = lyricSong.duration,
-                    )
-                    SongWithLyric(song, lyric)
-                }
-            } catch (_: Exception) {
-                null
-            }
-        }.orEmpty()
-    }
+//    /**
+//     * 根据歌词片段获取完整歌词
+//     *
+//     * @param lyricFragment 歌词片段
+//     * @param limit 返回数量限制
+//     * @param filterEmpty 是否过滤空歌词
+//     * @return 歌曲与歌词组合列表
+//     */
+//    suspend fun getLyricsByFragment(
+//        lyricFragment: String,
+//        limit: Int = 5,
+//        filterEmpty: Boolean = true,
+//    ): List<SongWithLyric> {
+//        val songs = musicApi.searchByLyric(lyricFragment, limit = limit).result?.songs
+//        return songs?.mapNotNull { lyricSong ->
+//            try {
+//                val lyric = musicApi.getLyric(lyricSong.id)
+//                if (filterEmpty && lyric.lrc?.lyric.isNullOrBlank()) {
+//                    null
+//                } else {
+//                    val song = NeteaseSearchSong(
+//                        id = lyricSong.id,
+//                        name = lyricSong.name,
+//                        artists = lyricSong.artists,
+//                        album = lyricSong.album,
+//                        duration = lyricSong.duration,
+//                    )
+//                    SongWithLyric(song, lyric)
+//                }
+//            } catch (_: Exception) {
+//                null
+//            }
+//        }.orEmpty()
+//    }
 }

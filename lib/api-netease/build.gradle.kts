@@ -9,15 +9,17 @@ plugins {
 //}
 
 kotlin {
-    sourceSets {
-        commonMain.dependencies {
-//            implementation("io.github.ltttttttttttt:LazyPeopleHttp-lib:+")
-            implementation(libs.site.addzero.network.starter)
-            api(projects.lib.apiMusicSpi)
-        }
-        commonTest.dependencies {
-            implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
-        }
+    dependencies {
+        implementation(libs.site.addzero.network.starter)
+        api(projects.lib.apiMusicSpi)
     }
+//    sourceSets {
+//        commonMain.dependencies {
+//            implementation("io.github.ltttttttttttt:LazyPeopleHttp-lib:+")
+//        }
+//        commonTest.dependencies {
+//            implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
+//        }
+//    }
 }
 
