@@ -85,8 +85,8 @@ object MusicSearchClient {
         limit: Int = 5,
         filterEmpty: Boolean = true,
     ): List<SongWithLyric> {
-        val songs = musicApi.searchByLyric(lyricFragment, limit = limit).result.songs
-        return songs.mapNotNull { lyricSong ->
+        val songs = musicApi.searchByLyric(lyricFragment, limit = limit).result?.songs
+        return songs?.mapNotNull { lyricSong ->
             try {
                 val lyric = musicApi.getLyric(lyricSong.id)
                 if (filterEmpty && lyric.lrc?.lyric.isNullOrBlank()) {
