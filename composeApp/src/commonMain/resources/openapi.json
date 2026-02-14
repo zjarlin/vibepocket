@@ -385,7 +385,7 @@
       },
       "FavoriteItem": {
         "type": "object",
-        "required": ["trackId", "taskId"],
+        "required": ["id", "trackId", "taskId"],
         "properties": {
           "id": { "type": "integer", "format": "int64", "description": "数据库主键" },
           "trackId": { "type": "string", "description": "曲目 ID" },
@@ -425,7 +425,7 @@
       },
       "MusicHistoryItem": {
         "type": "object",
-        "required": ["taskId", "type", "status"],
+        "required": ["id", "taskId", "type", "status"],
         "properties": {
           "id": { "type": "integer", "format": "int64", "description": "数据库主键" },
           "taskId": { "type": "string", "description": "任务 ID" },
@@ -450,7 +450,7 @@
       },
       "PersonaItem": {
         "type": "object",
-        "required": ["personaId", "name", "description"],
+        "required": ["id", "personaId", "name", "description"],
         "properties": {
           "id": { "type": "integer", "format": "int64", "description": "数据库主键" },
           "personaId": { "type": "string", "description": "Persona ID" },

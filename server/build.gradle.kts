@@ -1,7 +1,8 @@
 plugins {
     id("site.addzero.buildlogic.kmp.kmp-ktor-server")
     id("site.addzero.buildlogic.jvm.jimmer")
-    id("site.addzero.buildlogic.kmp.kmp-koin")
+    id("site.addzero.buildlogic.jvm.jvm-koin")
+    id("site.addzero.buildlogic.jvm.jvm-json-withtool")
 }
 ktor {
     openApi {
@@ -14,7 +15,6 @@ application {
 
 dependencies {
 
-
     implementation("site.addzero:tool-api-music-search:2026.01.20")
     implementation("site.addzero:tool-api-suno:2026.02.06")
 
@@ -23,11 +23,8 @@ dependencies {
 
 
     implementation(projects.shared)
-    implementation(libs.site.addzero.ktor.banner)
     implementation(libs.org.xerial.sqlite.jdbc.v3)
     // ktor-server-openapi 和 ktor-server-routing-openapi 依赖编译器插件，暂时移除
-    implementation(libs.io.ktor.ktor.server.swagger)
-    testImplementation("io.insert-koin:koin-test:4.2.0-RC1")
     // Kotest property testing & assertions for server-side property tests
     testImplementation(libs.io.kotest.kotest.property)
     testImplementation(libs.io.kotest.kotest.assertions.core)
