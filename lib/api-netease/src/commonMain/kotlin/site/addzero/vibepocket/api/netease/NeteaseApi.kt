@@ -1,7 +1,8 @@
 package site.addzero.vibepocket.api.netease
 
-import com.lt.lazy_people_http.annotations.GET
-import com.lt.lazy_people_http.annotations.LazyPeopleHttpService
+import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.Query
+
 
 /**
  * 网易云音乐 API 接口定义（Ktorfit 声明式）
@@ -9,16 +10,15 @@ import com.lt.lazy_people_http.annotations.LazyPeopleHttpService
  * 纯 HTTP 接口声明，不含业务逻辑。
  * type: 1=歌曲, 10=专辑, 100=歌手, 1000=歌单, 1006=歌词
  */
-@LazyPeopleHttpService
 interface NeteaseApi {
 
     /** 通用搜索（按 type 区分搜索类型） */
     @GET("search/get/web")
     suspend fun search(
-        s: String,
-        type: Int = SearchType.SONG.value,
-        limit: Int = 30,
-        offset: Int = 0,
+        @Query s: String,
+        @Query type: Int = SearchType.SONG.value,
+        @Query limit: Int = 30,
+        @Query offset: Int = 0,
 //        @Query("s") s: String,
 //        @Query("type") type: Int = 1,
 //        @Query("limit") limit: Int = 30,
@@ -30,15 +30,15 @@ interface NeteaseApi {
     /** 获取歌词 */
     @GET("song/lyric")
     suspend fun getLyric(
-        id: Long,
-        lv: Int = 1,
-        tv: Int = 1,
+        @Query id: Long,
+        @Query lv: Int = 1,
+        @Query tv: Int = 1,
     ): NeteaseLyricResponse
 
     /** 获取歌曲详情 */
     @GET("song/detail")
     suspend fun getSongDetail(
-        ids: String,
+        @Query ids: String,
     ): SongDetailResponse
 
     companion object {

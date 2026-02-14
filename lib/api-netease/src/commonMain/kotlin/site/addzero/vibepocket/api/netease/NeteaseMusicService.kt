@@ -1,4 +1,4 @@
-//package site.addzero.vibepocket.api.netease
+package site.addzero.vibepocket.api.netease//package site.addzero.vibepocket.api.netease
 //
 //import site.addzero.vibepocket.api.music.MusicLyric
 //import site.addzero.vibepocket.api.music.MusicService
