@@ -14,9 +14,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
+import com.shadcn.ui.components.sidebar.LocalSidebarState
+import com.shadcn.ui.components.sidebar.SidebarLayout
+import com.shadcn.ui.components.sidebar.SidebarState
+import com.shadcn.ui.components.sidebar.SidebarTrigger
+import com.shadcn.ui.themes.Theme
+import com.shadcn.ui.themes.colorScheme
+import dr.shadcn.kmp.themes.styles.ModernMinimalDark
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import site.addzero.component.glass.GlassTheme
 import site.addzero.vibepocket.auth.WelcomePage
@@ -39,13 +47,19 @@ fun App() {
     var sunoToken by remember { mutableStateOf("") }
     var sunoBaseUrl by remember { mutableStateOf("https://api.sunoapi.org/api/v1") }
 
-    MaterialTheme {
-        if (!isSetupDone) {
-            // 欢迎页全屏，不显示侧边栏
-            isSetupDone = WelComScreen(backStack, sunoToken, sunoBaseUrl, homeRoute, isSetupDone)
-        } else {
-            // 主界面：侧边栏 + NavDisplay
-            MainScreen(menuTree, backStack)
+    Theme(style = ModernMinimalDark) {
+        // A surface container using the 'background' color from the theme
+        val sidebarState = remember { SidebarState() }
+        CompositionLocalProvider(LocalSidebarState provides sidebarState) {
+            MaterialTheme(colorScheme = MaterialTheme.colorScheme) {
+                if (!isSetupDone) {
+                    // 欢迎页全屏，不显示侧边栏
+                    isSetupDone = WelComScreen(backStack, sunoToken, sunoBaseUrl, homeRoute, isSetupDone)
+                } else {
+                    // 主界面：侧边栏 + NavDisplay
+                    MainScreen(menuTree, backStack)
+                }
+            }
         }
     }
 }
@@ -55,35 +69,92 @@ private fun MainScreen(
     menuTree: List<MenuNode>,
     backStack: SnapshotStateList<RouteKey>
 ) {
-    Row(
+    val sidebarState = LocalSidebarState.current
+    SidebarLayout(
         modifier = Modifier
-            .fillMaxSize()
-            .background(GlassTheme.DarkBackground)
+            .fillMaxSize(),
+        sidebarHeader = {
+            Text(
+                text = "Vibepocket",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.styles.sidebarForeground,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        },
+        sidebarContent = {
+            menuTree.forEach { node ->
+                MenuNodeItem(
+                    node = node,
+                    onLeafClick = { leaf ->
+                        backStack.clear()
+                        backStack.add(RouteKey(leaf.metadata.routeKey))
+                    },
+                    isSelected = backStack.lastOrNull()?.key == node.metadata.routeKey
+                )
+            }
+        }
     ) {
-        MenuNodeSidebar(
-            menuTree = menuTree,
-            selectedRouteKey = backStack.lastOrNull()?.key ?: "",
-            onLeafClick = { node ->
-                backStack.clear()
-                backStack.add(RouteKey(node.metadata.routeKey))
-            },
-            title = "Vibepocket",
-        )
-
-        NavDisplay(
-            backStack = backStack,
-            onBack = { backStack.removeLastOrNull() },
-            entryProvider = { routeKey ->
-                NavEntry(routeKey) {
-                    val function = iocComposables[routeKey.key]
-                    function?.invoke() ?: return@NavEntry PlaceholderScreen("❓", "未知页面")
-                    when (routeKey.key) {
-                        "site.addzero.vibepocket.screens.ImageScreen" -> PlaceholderScreen("🖼️ 图片", "即将开放")
-                        "site.addzero.vibepocket.screens.VideoScreen" -> PlaceholderScreen("🎬 视频", "即将开放")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.styles.background)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SidebarTrigger()
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Vibepocket",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.styles.foreground
+                )
+            }
+            NavDisplay(
+                backStack = backStack,
+                onBack = { backStack.removeLastOrNull() },
+                entryProvider = { routeKey ->
+                    NavEntry(routeKey) {
+                        val function = iocComposables[routeKey.key]
+                        function?.invoke() ?: return@NavEntry PlaceholderScreen("❓", "未知页面")
+                        when (routeKey.key) {
+                            "site.addzero.vibepocket.screens.ImageScreen" -> PlaceholderScreen("🖼️ 图片", "即将开放")
+                            "site.addzero.vibepocket.screens.VideoScreen" -> PlaceholderScreen("🎬 视频", "即将开放")
+                        }
                     }
-                }
-            },
-        )
+                },
+            )
+        }
+    }
+}
+
+@Composable
+fun MenuNodeItem(node: MenuNode, onLeafClick: (MenuNode.Leaf) -> Unit, isSelected: Boolean) {
+    when (node) {
+        is MenuNode.Parent -> {
+            Text(
+                text = node.metadata.title,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.styles.sidebarForeground
+            )
+            node.children.forEach { child ->
+                MenuNodeItem(child, onLeafClick, isSelected)
+            }
+        }
+        is MenuNode.Leaf -> {
+            com.shadcn.ui.components.sidebar.SidebarMenuButton(
+                text = node.metadata.title,
+                onClick = { onLeafClick(node) },
+                isActive = isSelected
+            )
+        }
     }
 }
 
@@ -123,7 +194,7 @@ private fun PlaceholderScreen(icon: String, subtitle: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassTheme.DarkBackground),
+            .background(MaterialTheme.styles.background),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

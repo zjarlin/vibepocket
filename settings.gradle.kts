@@ -10,3 +10,7 @@ plugins {
 //    id("io.gitee.zjarlin.auto-modules") version "0.0.608"
 }
 
+
+
+//includeBuild("checkouts/shadcn-ui-kmp")
+
