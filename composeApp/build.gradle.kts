@@ -37,8 +37,8 @@ kotlin {
 //       implementation("site.addzero:addzero-route-core:2025.09.29")
 //        implementation("site.addzero:addzero-route-processor:2025.09.29")
 
-//        implementation(project(":lib:glass-components"))
-        implementation("io.github.derangga:shadcn-ui-kmp:0.2.0.2.0")
+        implementation(project(":lib:glass-components"))
+        implementation("io.github.derangga:shadcn-ui-kmp:0.2.0")
 
 
         implementation(project(":lib:api-qqmusic"))
@@ -66,6 +66,7 @@ kotlin {
             // ktor-server-core needed to access EmbeddedServer type from server module
 //            implementation(libs.io.ktor.ktor.server.core.jvm)
             implementation(libs.io.ktor.ktor.server.core)
+            implementation(libs.io.ktor.ktor.server.netty.jvm)
         }
         commonTest.dependencies {
             implementation(libs.io.kotest.kotest.property)

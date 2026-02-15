@@ -21,6 +21,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
 import site.addzero.vibepocket.api.SunoApiClient
+import site.addzero.vibepocket.api.suno.SunoBoostStyleData
+import site.addzero.vibepocket.api.suno.SunoBoostStyleRequest
 import site.addzero.vibepocket.model.*
 
 @Serializable

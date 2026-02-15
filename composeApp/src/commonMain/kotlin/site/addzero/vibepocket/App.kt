@@ -1,10 +1,7 @@
 package site.addzero.vibepocket
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -23,13 +20,12 @@ import com.shadcn.ui.components.sidebar.SidebarLayout
 import com.shadcn.ui.components.sidebar.SidebarState
 import com.shadcn.ui.components.sidebar.SidebarTrigger
 import com.shadcn.ui.themes.Theme
-import com.shadcn.ui.themes.colorScheme
 import dr.shadcn.kmp.themes.styles.ModernMinimalDark
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import site.addzero.component.glass.GlassTheme
 import site.addzero.vibepocket.auth.WelcomePage
-import site.addzero.vibepocket.music.ioc.generated.iocComposables
+import site.addzero.vibepocket.music.ioc.generated.iocComposablesByTag
 import site.addzero.vibepocket.navigation.*
+import site.addzero.vibepocket.screens.PlaceholderScreen
+import site.addzero.vibepocket.screens.WelcomeScreenWrapper
 
 private val WELCOME_ROUTE = RouteKey("site.addzero.vibepocket.auth.WelcomePage")
 
@@ -44,8 +40,7 @@ fun App() {
     val backStack = remember { mutableStateListOf(WELCOME_ROUTE) }
 
     // API 配置（欢迎页填写后传入，后续会改成从 DB 读取）
-    var sunoToken by remember { mutableStateOf("") }
-    var sunoBaseUrl by remember { mutableStateOf("https://api.sunoapi.org/api/v1") }
+
 
     Theme(style = ModernMinimalDark) {
         // A surface container using the 'background' color from the theme
@@ -53,8 +48,13 @@ fun App() {
         CompositionLocalProvider(LocalSidebarState provides sidebarState) {
             MaterialTheme(colorScheme = MaterialTheme.colorScheme) {
                 if (!isSetupDone) {
-                    // 欢迎页全屏，不显示侧边栏
-                    isSetupDone = WelComScreen(backStack, sunoToken, sunoBaseUrl, homeRoute, isSetupDone)
+                    WelcomeScreenWrapper(
+                        backStack = backStack,
+                        homeRoute = homeRoute,
+                        onSetupComplete = { token, url ->
+                            isSetupDone = true
+                        }
+                    )
                 } else {
                     // 主界面：侧边栏 + NavDisplay
                     MainScreen(menuTree, backStack)
@@ -120,8 +120,8 @@ private fun MainScreen(
                 onBack = { backStack.removeLastOrNull() },
                 entryProvider = { routeKey ->
                     NavEntry(routeKey) {
-                        val function = iocComposables[routeKey.key]
-                        function?.invoke() ?: return@NavEntry PlaceholderScreen("❓", "未知页面")
+                        val function = iocComposablesByTag["screen"]?.get(routeKey.key)?.invoke()
+                        function ?: return@NavEntry PlaceholderScreen("❓", "未知页面")
                         when (routeKey.key) {
                             "site.addzero.vibepocket.screens.ImageScreen" -> PlaceholderScreen("🖼️ 图片", "即将开放")
                             "site.addzero.vibepocket.screens.VideoScreen" -> PlaceholderScreen("🎬 视频", "即将开放")
@@ -148,62 +148,12 @@ fun MenuNodeItem(node: MenuNode, onLeafClick: (MenuNode.Leaf) -> Unit, isSelecte
                 MenuNodeItem(child, onLeafClick, isSelected)
             }
         }
+
         is MenuNode.Leaf -> {
             com.shadcn.ui.components.sidebar.SidebarMenuButton(
                 text = node.metadata.title,
                 onClick = { onLeafClick(node) },
                 isActive = isSelected
-            )
-        }
-    }
-}
-
-@Composable
-private fun WelComScreen(
-    backStack: SnapshotStateList<RouteKey>,
-    sunoToken: String,
-    sunoBaseUrl: String,
-    homeRoute: RouteKey,
-    isSetupDone: Boolean
-): Boolean {
-    var sunoToken1 = sunoToken
-    var sunoBaseUrl1 = sunoBaseUrl
-    var isSetupDone1 = isSetupDone
-    NavDisplay(
-        backStack = backStack,
-        onBack = {},
-        entryProvider = { routeKey ->
-            NavEntry(routeKey) {
-                WelcomePage(
-                    onEnter = { token, url ->
-                        sunoToken1 = token
-                        sunoBaseUrl1 = url
-                        backStack.clear()
-                        backStack.add(homeRoute)
-                        isSetupDone1 = true
-                    },
-                )
-            }
-        },
-    )
-    return isSetupDone1
-}
-
-@Composable
-private fun PlaceholderScreen(icon: String, subtitle: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.styles.background),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = icon, fontSize = 48.sp)
-            Text(
-                text = subtitle,
-                color = Color.White.copy(alpha = 0.5f),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
             )
         }
     }
