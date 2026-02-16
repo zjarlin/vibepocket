@@ -20,6 +20,7 @@ import org.babyfish.jimmer.sql.kt.newKSqlClient
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import org.sqlite.SQLiteDataSource
+import site.addzero.core.network.json.json
 import site.addzero.vibepocket.plugins.configureStatusPages
 import site.addzero.vibepocket.di.initDatabase
 import javax.sql.DataSource
@@ -35,12 +36,6 @@ import kotlin.test.assertTrue
  * **Validates: Requirements 2.4, 2.5, 2.6**
  */
 class FavoriteRoutesPropertyTest {
-
-    private val json = Json {
-        prettyPrint = true
-        isLenient = true
-        ignoreUnknownKeys = true
-    }
 
     /**
      * Generates finite Double values only (no NaN, no Infinity).

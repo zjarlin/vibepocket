@@ -26,7 +26,8 @@ import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import site.addzero.vibepocket.api.SunoApiClient
+import site.addzero.vibepocket.api.suno.SunoApiClient
+import site.addzero.vibepocket.api.suno.SunoTrack
 
 @Serializable
 private data class ConfigResp(val key: String, val value: String?)

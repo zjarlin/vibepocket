@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import site.addzero.component.glass.GlassColors
 import site.addzero.component.glass.GlassTheme
-import site.addzero.vibepocket.model.VibeStep
 
 @Composable
 fun StepIndicator(currentStep: VibeStep) {

@@ -23,7 +23,7 @@ import coil3.compose.AsyncImage
 import site.addzero.component.glass.GlassCard
 import site.addzero.component.glass.GlassColors
 import site.addzero.component.glass.GlassTheme
-import site.addzero.vibepocket.model.SunoTrack
+import site.addzero.vibepocket.api.suno.SunoTrack
 import site.addzero.vibepocket.model.TrackAction
 import site.addzero.vibepocket.model.TrackPlayerState
 

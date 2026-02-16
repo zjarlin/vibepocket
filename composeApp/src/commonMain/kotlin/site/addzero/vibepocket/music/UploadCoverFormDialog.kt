@@ -19,7 +19,11 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import site.addzero.component.glass.*
-import site.addzero.vibepocket.api.SunoApiClient
+import site.addzero.vibepocket.api.suno.SUNO_MODELS
+import site.addzero.vibepocket.api.suno.SunoApiClient
+import site.addzero.vibepocket.api.suno.SunoTaskDetail
+import site.addzero.vibepocket.api.suno.SunoUploadCoverRequest
+import site.addzero.vibepocket.api.suno.VOCAL_GENDERS
 import site.addzero.vibepocket.model.*
 
 /**

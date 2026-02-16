@@ -17,8 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import site.addzero.component.glass.*
 import site.addzero.vibepocket.model.PersonaItem
-import site.addzero.vibepocket.model.SUNO_MODELS
-import site.addzero.vibepocket.model.VOCAL_GENDERS
 
 /**
  * 第二步：Vibe 参数配置

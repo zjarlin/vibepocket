@@ -22,7 +22,9 @@ import site.addzero.component.glass.GlassButton
 import site.addzero.component.glass.GlassColors
 import site.addzero.component.glass.NeonGlassButton
 import site.addzero.ioc.annotation.Bean
-import site.addzero.vibepocket.api.SunoApiClient
+import site.addzero.vibepocket.api.suno.SunoApiClient
+import site.addzero.vibepocket.api.suno.SunoGenerateRequest
+import site.addzero.vibepocket.api.suno.SunoTaskDetail
 import site.addzero.vibepocket.model.*
 
 

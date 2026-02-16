@@ -20,6 +20,7 @@ import com.shadcn.ui.components.sidebar.SidebarLayout
 import com.shadcn.ui.components.sidebar.SidebarState
 import com.shadcn.ui.components.sidebar.SidebarTrigger
 import com.shadcn.ui.themes.Theme
+import com.shadcn.ui.themes.styles
 import dr.shadcn.kmp.themes.styles.ModernMinimalDark
 import site.addzero.vibepocket.auth.WelcomePage
 import site.addzero.vibepocket.music.ioc.generated.iocComposablesByTag
