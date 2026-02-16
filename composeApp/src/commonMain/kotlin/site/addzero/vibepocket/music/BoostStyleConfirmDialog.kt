@@ -20,7 +20,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
-import site.addzero.vibepocket.api.SunoApiClient
+import org.koin.compose.koinInject
+import site.addzero.vibepocket.music.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoBoostStyleData
 import site.addzero.vibepocket.api.suno.SunoBoostStyleRequest
 import site.addzero.vibepocket.model.*
@@ -98,14 +99,7 @@ fun BoostStyleConfirmDialog(
                             isSubmitting = true
                             errorMessage = null
                             statusText = "正在提交..."
-
-                            scope.launch {
-                                try {
-                                    val token = fetchBoostStyleConfig("suno_api_token") ?: ""
-                                    val url = fetchBoostStyleConfig("suno_api_base_url")
-                                        ?.ifBlank { null }
-                                        ?: "https://api.sunoapi.org/api/v1"
-                                    val client = SunoApiClient(apiToken = token, baseUrl = url)
+                            val client: SunoApiClient = koinInject()
 
                                     val request = SunoBoostStyleRequest(
                                         taskId = taskId,

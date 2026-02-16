@@ -47,19 +47,17 @@ fun App() {
         // A surface container using the 'background' color from the theme
         val sidebarState = remember { SidebarState() }
         CompositionLocalProvider(LocalSidebarState provides sidebarState) {
-            MaterialTheme(colorScheme = MaterialTheme.colorScheme) {
-                if (!isSetupDone) {
-                    WelcomeScreenWrapper(
-                        backStack = backStack,
-                        homeRoute = homeRoute,
-                        onSetupComplete = { token, url ->
-                            isSetupDone = true
-                        }
-                    )
-                } else {
-                    // 主界面：侧边栏 + NavDisplay
-                    MainScreen(menuTree, backStack)
-                }
+            if (!isSetupDone) {
+                WelcomeScreenWrapper(
+                    backStack = backStack,
+                    homeRoute = homeRoute,
+                    onSetupComplete = { token, url ->
+                        isSetupDone = true
+                    }
+                )
+            } else {
+                // 主界面：侧边栏 + NavDisplay
+                MainScreen(menuTree, backStack)
             }
         }
     }
@@ -135,27 +133,23 @@ private fun MainScreen(
 }
 
 @Composable
-fun MenuNodeItem(node: MenuNode, onLeafClick: (MenuNode.Leaf) -> Unit, isSelected: Boolean) {
-    when (node) {
-        is MenuNode.Parent -> {
-            Text(
-                text = node.metadata.title,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.styles.sidebarForeground
-            )
-            node.children.forEach { child ->
-                MenuNodeItem(child, onLeafClick, isSelected)
-            }
+fun MenuNodeItem(node: MenuNode, onLeafClick: (MenuNode) -> Unit, isSelected: Boolean) {
+    if (node.children.isNotEmpty() || node.isVirtualParent) { // This is a Parent or VirtualParent
+        Text(
+            text = node.metadata.menuNameAlias,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.styles.sidebarForeground
+        )
+        node.children.forEach { child ->
+            MenuNodeItem(child, onLeafClick, isSelected)
         }
-
-        is MenuNode.Leaf -> {
-            com.shadcn.ui.components.sidebar.SidebarMenuButton(
-                text = node.metadata.title,
-                onClick = { onLeafClick(node) },
-                isActive = isSelected
-            )
-        }
+    } else { // This is a Leaf
+        com.shadcn.ui.components.sidebar.SidebarMenuButton(
+            text = node.metadata.menuNameAlias,
+            onClick = { onLeafClick(node) },
+            isActive = isSelected
+        )
     }
 }

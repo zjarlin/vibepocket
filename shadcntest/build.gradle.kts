@@ -14,14 +14,22 @@ dependencies {
 //    kspCommonMainMetadata(project(":openapi-codegen"))
 //    add("kspJvm", project(":openapi-codegen"))
 }
+compose.desktop {
+    application {
+        mainClass = "site.addzero.vibepocket.MainKt"
+
+    }
+}
+
 
 kotlin {
     dependencies {
-        implementation("io.github.derangga:shadcn-ui-kmp:0.2.0")
+//        implementation("io.github.derangga:shadcn-ui-kmp:0.2.0")
 
 
         implementation(libs.io.github.khubaibkhan4.mediaplayer.kmp)
 
+        implementation("io.github.kyant0:backdrop:2.0.0-alpha03")
 
         implementation(libs.eu.iamkonstantin.kotlin.gadulka)
         implementation(libs.org.jetbrains.androidx.navigation3.navigation3.ui)
@@ -33,11 +41,11 @@ kotlin {
 
         jvmMain.dependencies {
         }
-        commonTest.dependencies {
-            implementation(libs.io.kotest.kotest.property)
-            implementation(libs.io.kotest.kotest.assertions.core)
-            implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
-        }
+//        commonTest.dependencies {
+//            implementation(libs.io.kotest.kotest.property)
+//            implementation(libs.io.kotest.kotest.assertions.core)
+//            implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
+//        }
     }
 
 

@@ -18,6 +18,9 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json // Added
+import kotlinx.serialization.encodeToString // Added
+import org.koin.compose.koinInject
 import site.addzero.component.glass.GlassButton
 import site.addzero.component.glass.GlassColors
 import site.addzero.component.glass.NeonGlassButton
@@ -27,6 +30,12 @@ import site.addzero.vibepocket.api.suno.SunoGenerateRequest
 import site.addzero.vibepocket.api.suno.SunoTaskDetail
 import site.addzero.vibepocket.model.*
 
+
+private val prettyJson = Json { // Added
+    prettyPrint = true
+    encodeDefaults = true
+    ignoreUnknownKeys = true
+}
 
 /**
  * 音乐 Vibe 主界面
@@ -75,11 +84,7 @@ fun MusicVibeScreen() {
         // 加载积分
         isLoadingCredits = true
         try {
-            val token = fetchConfig("suno_api_token") ?: ""
-            val url = fetchConfig("suno_api_base_url")
-                ?.ifBlank { null }
-                ?: "https://api.sunoapi.org/api/v1"
-            val client = SunoApiClient(apiToken = token, baseUrl = url)
+            val client: SunoApiClient = koinInject()
             credits = client.getCredits()
         } catch (_: Exception) {
             credits = null
@@ -236,14 +241,8 @@ fun MusicVibeScreen() {
                                         taskStatus = "正在提交..."
 
                                         scope.launch {
-                                            // 从内嵌 server DB 读取配置
-                                            val token = fetchConfig("suno_api_token") ?: ""
-                                            val url = fetchConfig("suno_api_base_url")
-                                                ?.ifBlank { null }
-                                                ?: "https://api.sunoapi.org/api/v1"
-
+                                            val client: SunoApiClient = koinInject()
                                             try {
-                                                val client = SunoApiClient(apiToken = token, baseUrl = url)
                                                 taskStatus = "正在提交任务..."
                                                 val taskId = client.generateMusic(request)
                                                 taskStatus = "已提交，任务 ID: $taskId\n轮询中..."
@@ -263,7 +262,7 @@ fun MusicVibeScreen() {
                                                 isSubmitting = false
                                                 // 刷新积分
                                                 try {
-                                                    val refreshClient = SunoApiClient(apiToken = token, baseUrl = url)
+                                                    val refreshClient: SunoApiClient = koinInject()
                                                     credits = refreshClient.getCredits()
                                                 } catch (_: Exception) {
                                                     // 刷新失败不阻断

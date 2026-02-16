@@ -18,6 +18,7 @@ import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.koin.compose.koinInject
 import site.addzero.component.glass.*
 import site.addzero.vibepocket.api.suno.SUNO_MODELS
 import site.addzero.vibepocket.api.suno.SunoApiClient
@@ -174,11 +175,7 @@ fun UploadCoverFormDialog(
 
                             scope.launch {
                                 try {
-                                    val token = fetchCoverConfig("suno_api_token") ?: ""
-                                    val url = fetchCoverConfig("suno_api_base_url")
-                                        ?.ifBlank { null }
-                                        ?: "https://api.sunoapi.org/api/v1"
-                                    val client = SunoApiClient(apiToken = token, baseUrl = url)
+                                    val client: SunoApiClient = koinInject()
 
                                     val request = SunoUploadCoverRequest(
                                         uploadUrl = uploadUrl.trim(),

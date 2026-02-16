@@ -18,6 +18,16 @@ import androidx.compose.ui.unit.sp
 import site.addzero.component.glass.*
 import site.addzero.vibepocket.model.PersonaItem
 
+// Constants for model versions
+private val SUNO_MODELS = listOf("v3.5", "v3", "v2")
+
+// Constants for vocal genders, with display labels
+private val VOCAL_GENDERS = listOf(
+    Pair("male", "男声"),
+    Pair("female", "女声"),
+    Pair("any", "任意"),
+)
+
 /**
  * 第二步：Vibe 参数配置
  */

@@ -38,8 +38,10 @@ kotlin {
 //        implementation("site.addzero:addzero-route-processor:2025.09.29")
 
         implementation(project(":lib:glass-components"))
-        implementation("io.github.derangga:shadcn-ui-kmp:0.2.0")
+//        implementation(project(":checkouts:shadcn-ui-kmp"))
+//        implementation("io.github.kyant0:backdrop:2.0.0-alpha03")
 
+        implementation(project(":lib:shadcn-ui-kmp"))
 
         implementation(project(":lib:api-qqmusic"))
         implementation(project(":lib:api-suno"))

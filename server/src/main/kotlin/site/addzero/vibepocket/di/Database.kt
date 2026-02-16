@@ -30,6 +30,9 @@ class DatabaseModule {
         this.url = "jdbc:sqlite:vibepocket.db"
     }
 
+
+
+
     @Single
     fun sqlClient(dataSource: DataSource, baseEntityDraftInterceptor: BaseEntityDraftInterceptor): KSqlClient =
         newKSqlClient {

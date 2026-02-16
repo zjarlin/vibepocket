@@ -78,7 +78,7 @@ class FavoriteRoutesPropertyTest {
     }
 
     private fun ApplicationTestBuilder.configureTestApp(sqlClient: KSqlClient) {
-        application {
+        application.apply {
             install(ContentNegotiation) {
                 json(json)
             }

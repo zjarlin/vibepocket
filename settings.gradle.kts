@@ -7,8 +7,5 @@ plugins {
     id("site.addzero.gradle.plugin.repo-buddy") version "+"
     id("site.addzero.gradle.plugin.addzero-git-dependency") version "+"
 
-//    id("io.gitee.zjarlin.auto-modules") version "0.0.608"
 }
-
-
 
