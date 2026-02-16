@@ -28,11 +28,10 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
-import site.addzero.vibepocket.api.SunoApiClient
-import site.addzero.vibepocket.model.NeteaseSearchSong
-import site.addzero.vibepocket.model.SunoLyricItem
-import site.addzero.vibepocket.model.SunoLyricsRequest
-import site.addzero.vibepocket.service.MusicSearchService
+import site.addzero.vibepocket.api.netease.NeteaseSearchSong
+import site.addzero.vibepocket.api.suno.SunoApiClient
+import site.addzero.vibepocket.api.suno.SunoLyricItem
+import site.addzero.vibepocket.api.suno.SunoLyricsRequest
 
 @Serializable
 private data class LyricsConfigResp(val key: String, val value: String?)
@@ -135,6 +134,7 @@ fun LyricsStep(
                         searchResults = emptyList()
                         scope.launch {
                             try {
+                                musiapi
                                 val results = MusicSearchService.searchSongs(
                                     songName = songName,
                                     artistName = artistName.ifBlank { null },

@@ -2,7 +2,7 @@ package site.addzero.vibepocket.di
 
 import org.koin.dsl.module
 import site.addzero.vibepocket.api.ServerRepository
-import site.addzero.vibepocket.music.MusicHistorySaveRequest
+import site.addzero.vibepocket.model.MusicHistorySaveRequest
 import site.addzero.vibepocket.model.PersonaItem
 
 val appModule = module {
