@@ -2,6 +2,10 @@ plugins {
     id("site.addzero.buildlogic.kmp.cmp-app")
     id("site.addzero.buildlogic.kmp.kmp-ksp-plugin")
     id("site.addzero.buildlogic.kmp.kmp-ktorfit")
+    id("site.addzero.buildlogic.kmp.kmp-koin")
+    id("site.addzero.buildlogic.kmp.kmp-json-withtool")
+
+    id("site.addzero.buildlogic.kmp.kmp-ktor-client")
 }
 // Ktorfit compiler plugin 兼容性配置
 // Kotlin 2.3.x 需要 compilerPluginVersion = "2.3.3"
@@ -15,68 +19,40 @@ dependencies {
 //    add("kspJvm", project(":openapi-codegen"))
 }
 
-ksp {
-    arg("openapi.spec", "$projectDir/src/commonMain/resources/openapi.json")
-    arg("openapi.package", "site.addzero.vibepocket.api.generated")
-}
+//ksp {
+//    arg("openapi.spec", "$projectDir/src/commonMain/resources/openapi.json")
+//    arg("openapi.package", "site.addzero.vibepocket.api.generated")
+//}
 
 kotlin {
-    wasmJs {
-//        moduleName = "composeApp"
-        browser()
-        binaries.executable()
-    }
     dependencies {
-        implementation(libs.site.addzero.tool.json)
-        implementation(libs.site.addzero.network.starter)
         implementation(libs.site.addzero.ioc.core)
-        implementation(libs.io.github.vinceglb.filekit.core)
-        implementation(libs.io.github.vinceglb.filekit.dialogs)
-        implementation(libs.io.github.vinceglb.filekit.dialogs.compose)
-        implementation(libs.io.github.vinceglb.filekit.coil)
+        implementation(libs.site.addzero.network.starter)
 //       implementation("site.addzero:addzero-route-core:2025.09.29")
 //        implementation("site.addzero:addzero-route-processor:2025.09.29")
-
         implementation(project(":lib:glass-components"))
 //        implementation(project(":checkouts:shadcn-ui-kmp"))
 //        implementation("io.github.kyant0:backdrop:2.0.0-alpha03")
-
         implementation(project(":lib:shadcn-ui-kmp"))
 
         implementation(project(":lib:api-qqmusic"))
         implementation(project(":lib:api-suno"))
         implementation(project(":lib:api-netease"))
 
-
 //        implementation(libs.de.jensklingenberg.ktorfit.ktorfit.lib.light)
-        implementation(libs.io.ktor.ktor.client.core)
-        implementation(libs.io.ktor.ktor.client.cio)
-        implementation(libs.io.ktor.ktor.client.content.negotiation)
-        implementation(libs.io.ktor.ktor.serialization.kotlinx.json)
         implementation(libs.io.github.khubaibkhan4.mediaplayer.kmp)
-        implementation(libs.eu.iamkonstantin.kotlin.gadulka)
-        implementation(libs.org.jetbrains.androidx.navigation3.navigation3.ui)
-        implementation(libs.org.jetbrains.androidx.lifecycle.lifecycle.viewmodel.navigation3)
 
+
+        //无头播放器
+        implementation(libs.eu.iamkonstantin.kotlin.gadulka)
 //        implementation(projects.shared)
     }
     sourceSets {
-
         jvmMain.dependencies {
             // 桌面端内嵌 Ktor 后端，无需单独部署 server
             implementation(projects.server)
-            // ktor-server-core needed to access EmbeddedServer type from server module
-//            implementation(libs.io.ktor.ktor.server.core.jvm)
-            implementation(libs.io.ktor.ktor.server.core)
-            implementation(libs.io.ktor.ktor.server.netty.jvm)
-        }
-        commonTest.dependencies {
-            implementation(libs.io.kotest.kotest.property)
-            implementation(libs.io.kotest.kotest.assertions.core)
-            implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
         }
     }
-
 
 }
 

@@ -32,7 +32,6 @@ fun AudioToolsPage() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassTheme.DarkBackground)
             .padding(24.dp)
     ) {
         Column(

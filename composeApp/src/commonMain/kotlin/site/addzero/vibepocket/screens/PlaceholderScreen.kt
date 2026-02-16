@@ -17,8 +17,7 @@ import androidx.compose.ui.unit.sp
 fun PlaceholderScreen(icon: String, subtitle: String) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.styles.background),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

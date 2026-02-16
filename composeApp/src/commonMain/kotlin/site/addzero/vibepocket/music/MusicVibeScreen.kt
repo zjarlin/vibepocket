@@ -125,7 +125,6 @@ fun MusicVibeScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GlassColors.DarkBackground)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             // ========== 左侧：分步表单 ==========
