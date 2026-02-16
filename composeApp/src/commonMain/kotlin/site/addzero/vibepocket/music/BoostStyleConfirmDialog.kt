@@ -21,7 +21,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
 import org.koin.compose.koinInject
-import site.addzero.vibepocket.music.suno.SunoApiClient
+import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoBoostStyleData
 import site.addzero.vibepocket.api.suno.SunoBoostStyleRequest
 import site.addzero.vibepocket.model.*
@@ -54,6 +54,7 @@ fun BoostStyleConfirmDialog(
     onDismiss: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val client: SunoApiClient = koinInject()
 
     // ── 提交状态 ──
     var isSubmitting by remember { mutableStateOf(false) }
@@ -99,8 +100,10 @@ fun BoostStyleConfirmDialog(
                             isSubmitting = true
                             errorMessage = null
                             statusText = "正在提交..."
-                            val client: SunoApiClient = koinInject()
 
+                            scope.launch {
+                                try {
+                                    // Use the client injected outside the lambda
                                     val request = SunoBoostStyleRequest(
                                         taskId = taskId,
                                         audioId = audioId,
@@ -119,7 +122,7 @@ fun BoostStyleConfirmDialog(
                                     }
 
                                     statusText = null
-                                    client.close()
+                                    // Removed client.close() as Koin should manage the client lifecycle
                                 } catch (e: Exception) {
                                     errorMessage = "❌ ${e.message}"
                                     statusText = null

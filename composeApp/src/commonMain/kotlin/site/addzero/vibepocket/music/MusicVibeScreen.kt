@@ -25,6 +25,7 @@ import site.addzero.component.glass.GlassButton
 import site.addzero.component.glass.GlassColors
 import site.addzero.component.glass.NeonGlassButton
 import site.addzero.ioc.annotation.Bean
+import site.addzero.vibepocket.api.ServerRepository // Added import
 import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoGenerateRequest
 import site.addzero.vibepocket.api.suno.SunoTaskDetail
@@ -45,6 +46,7 @@ private val prettyJson = Json { // Added
 @Bean(tags = ["screen"])
 fun MusicVibeScreen() {
     val scope = rememberCoroutineScope()
+    val serverRepository: ServerRepository = koinInject() // Injected ServerRepository
     // ===== 表单状态 =====
     var currentStep by remember { mutableStateOf(VibeStep.LYRICS) }
     // Step 1: 歌词
@@ -77,7 +79,7 @@ fun MusicVibeScreen() {
     // ── 初始化加载 Persona 列表 & 积分 ──
     LaunchedEffect(Unit) {
         personas = try {
-            ServerApiClient.getPersonas()
+            serverRepository.getPersonas()
         } catch (_: Exception) {
             emptyList()
         }
@@ -100,7 +102,7 @@ fun MusicVibeScreen() {
         val tId = detail.taskId ?: return@LaunchedEffect
         val tracks = detail.response?.sunoData ?: emptyList()
         try {
-            ServerApiClient.saveHistory(
+            serverRepository.saveHistory(
                 MusicHistorySaveRequest(
                     taskId = tId,
                     type = detail.type ?: "generate",
