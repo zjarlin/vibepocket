@@ -26,23 +26,9 @@ import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoTrack
-
-@Serializable
-private data class ConfigResp(val key: String, val value: String?)
-
-/** 从内嵌 server 读取配置 */
-private suspend fun fetchConfig(key: String): String? {
-    val client = HttpClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
-    return try {
-        client.get("http://localhost:8080/api/config/$key").body<ConfigResp>().value
-    } catch (_: Exception) {
-        null
-    } finally {
-        client.close()
-    }
-}
 
 /**
  * 音乐历史/收藏页面 — 带 Tab 切换（"全部" | "收藏"）
@@ -90,8 +76,8 @@ fun MusicHistoryPage() {
         // 加载积分
         isLoadingCredits = true
         try {
-            val token = fetchConfig("suno_api_token") ?: ""
-            val url = fetchConfig("suno_api_base_url")
+            val token = ServerApiClient.getConfig("suno_api_token") ?: ""
+            val url = ServerApiClient.getConfig("suno_api_base_url")
                 ?.ifBlank { null }
                 ?: "https://api.sunoapi.org/api/v1"
             val client = SunoApiClient(apiToken = token, baseUrl = url)

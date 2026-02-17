@@ -22,31 +22,11 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
+import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoTaskDetail
 import site.addzero.vibepocket.api.suno.SunoWavRequest
 
-@Serializable
-private data class WavExportConfigResp(val key: String, val value: String?)
-
-/** 从内嵌 server 读取配置 */
-private suspend fun fetchWavExportConfig(key: String): String? {
-    val client = HttpClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
-    return try {
-        client.get("http://localhost:8080/api/config/$key").body<WavExportConfigResp>().value
-    } catch (_: Exception) {
-        null
-    } finally {
-        client.close()
-    }
-}
-
-/**
- * WAV 导出确认 Dialog
- *
- * 接收 audioId 和 taskId，确认后调用 SunoApiClient.convertToWav()，
- * 轮询任务进度并展示 WAV 文件下载链接。
- */
 @Composable
 fun WavExportConfirmDialog(
     audioId: String,
@@ -102,8 +82,8 @@ fun WavExportConfirmDialog(
 
                             scope.launch {
                                 try {
-                                    val token = fetchWavExportConfig("suno_api_token") ?: ""
-                                    val url = fetchWavExportConfig("suno_api_base_url")
+                                    val token = ServerApiClient.getConfig("suno_api_token") ?: ""
+                                    val url = ServerApiClient.getConfig("suno_api_base_url")
                                         ?.ifBlank { null }
                                         ?: "https://api.sunoapi.org/api/v1"
                                     val client = SunoApiClient(apiToken = token, baseUrl = url)

@@ -36,9 +36,10 @@ kotlin {
 //        implementation("io.github.kyant0:backdrop:2.0.0-alpha03")
         implementation(project(":lib:shadcn-ui-kmp"))
 
-        implementation(project(":lib:api-qqmusic"))
+//        implementation(project(":lib:api-qqmusic"))
         implementation(project(":lib:api-suno"))
-        implementation(project(":lib:api-netease"))
+
+       implementation("site.addzero:api-netease:2026.02.17")
 
 //        implementation(libs.de.jensklingenberg.ktorfit.ktorfit.lib.light)
         implementation(libs.io.github.khubaibkhan4.mediaplayer.kmp)

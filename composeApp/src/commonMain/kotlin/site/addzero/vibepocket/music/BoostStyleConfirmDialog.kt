@@ -21,32 +21,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
 import org.koin.compose.koinInject
+import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoBoostStyleData
 import site.addzero.vibepocket.api.suno.SunoBoostStyleRequest
 import site.addzero.vibepocket.model.*
 
-@Serializable
-private data class BoostStyleConfigResp(val key: String, val value: String?)
-
-/** 从内嵌 server 读取配置 */
-private suspend fun fetchBoostStyleConfig(key: String): String? {
-    val client = HttpClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
-    return try {
-        client.get("http://localhost:8080/api/config/$key").body<BoostStyleConfigResp>().value
-    } catch (_: Exception) {
-        null
-    } finally {
-        client.close()
-    }
-}
-
-/**
- * 风格提升确认 Dialog
- *
- * 接收 audioId 和 taskId，确认后调用 SunoApiClient.boostMusicStyle()，
- * 显示消耗积分和剩余积分，并调用 getCredits() 获取最新积分。
- */
 @Composable
 fun BoostStyleConfirmDialog(
     audioId: String,

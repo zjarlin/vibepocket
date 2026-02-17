@@ -29,29 +29,8 @@ import site.addzero.component.glass.GlassTextField
 import site.addzero.component.glass.GlassTheme
 import site.addzero.component.glass.NeonGlassButton
 import site.addzero.ioc.annotation.Bean
-
-@Serializable
-private data class ConfigResp(val key: String, val value: String?)
-
-@Serializable
-private data class ConfigEntry(val key: String, val value: String, val description: String? = null)
-
-private val configHttpClient = HttpClient {
-    install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
-}
-
-private suspend fun fetchConfig(key: String): String? = try {
-    configHttpClient.get("http://localhost:8080/api/config/$key").body<ConfigResp>().value
-} catch (_: Exception) { null }
-
-private suspend fun saveConfig(key: String, value: String, desc: String? = null) {
-    try {
-        configHttpClient.put("http://localhost:8080/api/config") {
-            contentType(ContentType.Application.Json)
-            setBody(ConfigEntry(key, value, desc))
-        }
-    } catch (_: Exception) { }
-}
+import site.addzero.vibepocket.api.ServerApiClient
+import site.addzero.vibepocket.model.ConfigEntry
 
 private enum class SettingsTab(val title: String, val icon: String) {
     MUSIC("音乐", "🎵"),
@@ -75,8 +54,8 @@ fun SettingsPage() {
 
     // 启动时从 server 加载
     LaunchedEffect(Unit) {
-        sunoToken = fetchConfig("suno_api_token") ?: ""
-        sunoBaseUrl = fetchConfig("suno_api_base_url") ?: "https://api.sunoapi.org/api/v1"
+        sunoToken = ServerApiClient.getConfig("suno_api_token") ?: ""
+        sunoBaseUrl = ServerApiClient.getConfig("suno_api_base_url") ?: "https://api.sunoapi.org/api/v1"
         loaded = true
     }
 
@@ -111,8 +90,12 @@ fun SettingsPage() {
                                 onBaseUrlChange = { sunoBaseUrl = it },
                                 onSave = {
                                     scope.launch {
-                                        saveConfig("suno_api_token", sunoToken, "Suno API Token")
-                                        saveConfig("suno_api_base_url", sunoBaseUrl, "Suno API Base URL")
+                                        ServerApiClient.configApi.updateConfig(
+                                            ConfigEntry("suno_api_token", sunoToken, "Suno API Token")
+                                        )
+                                        ServerApiClient.configApi.updateConfig(
+                                            ConfigEntry("suno_api_base_url", sunoBaseUrl, "Suno API Base URL")
+                                        )
                                     }
                                 },
                             )

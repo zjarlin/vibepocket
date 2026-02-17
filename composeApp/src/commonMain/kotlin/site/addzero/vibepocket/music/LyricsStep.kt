@@ -17,40 +17,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.date.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
-import site.addzero.vibepocket.api.netease.NeteaseSearchSong
+import site.addzero.vibepocket.api.ServerApiClient
+import site.addzero.vibepocket.api.netease.MusicSearchClient
+import site.addzero.vibepocket.api.netease.model.NeteaseSearchResult
+import site.addzero.vibepocket.api.netease.model.NeteaseSearchSong
+import site.addzero.vibepocket.api.netease.searchByKeyword
 import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoLyricItem
 import site.addzero.vibepocket.api.suno.SunoLyricsRequest
 
-@Serializable
-private data class LyricsConfigResp(val key: String, val value: String?)
-
-/** 从内嵌 server 读取配置 */
-private suspend fun fetchLyricsConfig(key: String): String? {
-    val client = HttpClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
-    return try {
-        client.get("http://localhost:8080/api/config/$key").body<LyricsConfigResp>().value
-    } catch (_: Exception) {
-        null
-    } finally {
-        client.close()
-    }
-}
-
-/**
- * 第一步：确认歌词
- */
 @Composable
 fun LyricsStep(
     lyrics: String,
@@ -64,7 +43,7 @@ fun LyricsStep(
     var isSearching by remember { mutableStateOf(false) }
     var searchError by remember { mutableStateOf<String?>(null) }
     // 搜索结果列表
-    var searchResults by remember { mutableStateOf<List<NeteaseSearchSong>>(emptyList()) }
+    var searchResults by remember { mutableStateOf(null as NeteaseSearchResult?) }
     // 正在加载歌词的歌曲 ID
     var loadingLyricId by remember { mutableStateOf<Long?>(null) }
 
@@ -131,18 +110,18 @@ fun LyricsStep(
                         if (isSearching) return@GlassButton
                         isSearching = true
                         searchError = null
-                        searchResults = emptyList()
+                        searchResults = null
                         scope.launch {
                             try {
-                                musiapi
-                                val results = MusicSearchService.searchSongs(
-                                    songName = songName,
-                                    artistName = artistName.ifBlank { null },
-                                )
-                                searchResults = results
-                                if (results.isEmpty()) {
+                                val searchByKeyword = MusicSearchClient.musicApi.searchByKeyword(songName)
+                                val result = searchByKeyword.result
+
+                                if (result==null) {
                                     searchError = "未找到相关歌曲"
                                 }
+
+                                searchResults=result!!
+
                             } catch (e: Exception) {
                                 searchError = "搜索失败: ${e.message}"
                             } finally {
@@ -161,18 +140,20 @@ fun LyricsStep(
         }
 
         // ── 搜索结果列表（带封面图） ──
-        if (searchResults.isNotEmpty()) {
+        searchResults?.let {
             NeonGlassCard(
                 modifier = Modifier.fillMaxWidth(),
                 glowColor = GlassColors.NeonPurple
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "🎵 搜索结果（${searchResults.size} 首）· 点击获取歌词",
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    it.songs?.let { it1 ->
+                        Text(
+                            text = "🎵 搜索结果（${it1.size} 首）· 点击获取歌词",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
 
                     LazyColumn(
@@ -181,7 +162,7 @@ fun LyricsStep(
                             .heightIn(max = 320.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        items(searchResults, key = { it.id }) { song ->
+                        items(it.songs.orEmpty(), key = { it.id }) { song ->
                             SongResultItem(
                                 song = song,
                                 isLoading = loadingLyricId == song.id,
@@ -190,7 +171,9 @@ fun LyricsStep(
                                     loadingLyricId = song.id
                                     scope.launch {
                                         try {
-                                            val lyricText = MusicSearchService.getLyric(song.id)
+                                            val lyric = MusicSearchClient.musicApi.getLyric(song.id)
+                                            val lyricText = lyric.tlyric.lyric
+
                                             if (lyricText != null) {
                                                 onLyricsChange(lyricText)
                                                 onSongNameChange(song.name)
@@ -303,8 +286,8 @@ fun AiLyricsGenerator(
 
                     scope.launch {
                         try {
-                            val token = fetchLyricsConfig("suno_api_token") ?: ""
-                            val url = fetchLyricsConfig("suno_api_base_url")
+                            val token = ServerApiClient.getConfig("suno_api_token") ?: ""
+                            val url = ServerApiClient.getConfig("suno_api_base_url")
                                 ?.ifBlank { null }
                                 ?: "https://api.sunoapi.org/api/v1"
                             val client = SunoApiClient(apiToken = token, baseUrl = url)

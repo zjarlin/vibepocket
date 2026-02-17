@@ -6,26 +6,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.util.date.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
-import site.addzero.vibepocket.api.SunoApiClient
-import site.addzero.vibepocket.model.*
+import site.addzero.vibepocket.api.ServerApiClient
+import site.addzero.vibepocket.api.suno.SunoApiClient
+import site.addzero.vibepocket.api.suno.SunoMusicCoverRequest
+import site.addzero.vibepocket.api.suno.SunoTaskDetail
+import site.addzero.vibepocket.model.TrackPlayerState
 
 
 /**
@@ -125,8 +117,8 @@ fun MusicCoverFormDialog(
 
                             scope.launch {
                                 try {
-                                    val token = fetchCoverConfig("suno_api_token") ?: ""
-                                    val url = fetchCoverConfig("suno_api_base_url")
+                                    val token = ServerApiClient.getConfig("suno_api_token") ?: ""
+                                    val url = ServerApiClient.getConfig("suno_api_base_url")
                                         ?.ifBlank { null }
                                         ?: "https://api.sunoapi.org/api/v1"
                                     val client = SunoApiClient(apiToken = token, baseUrl = url)

@@ -44,6 +44,18 @@ data class ConfigEntry(val key: String, val value: String, val description: Stri
 @Serializable
 data class ConfigResponse(val key: String, val value: String?)
 
+@Serializable
+data class StorageConfig(
+    val type: String = "LOCAL",
+    val endpoint: String? = null,
+    val accessKey: String? = null,
+    val secretKey: String? = null,
+    val bucketName: String? = null,
+    val region: String? = null,
+    val domain: String? = null,
+    val basePath: String? = null
+)
+
 
 @Bean
 fun Route.configRoutes() {
@@ -62,6 +74,35 @@ fun Route.configRoutes() {
             val entry = call.receive<ConfigEntry>()
             sqlClient.setConfig(entry.key, entry.value, entry.description)
             call.respond(mapOf("ok" to true))
+        }
+
+        route("/storage") {
+            get {
+                val config = StorageConfig(
+                    type = sqlClient.getConfig("storage.type") ?: "LOCAL",
+                    endpoint = sqlClient.getConfig("storage.endpoint"),
+                    accessKey = sqlClient.getConfig("storage.accessKey"),
+                    secretKey = sqlClient.getConfig("storage.secretKey"),
+                    bucketName = sqlClient.getConfig("storage.bucketName"),
+                    region = sqlClient.getConfig("storage.region"),
+                    domain = sqlClient.getConfig("storage.domain"),
+                    basePath = sqlClient.getConfig("storage.basePath")
+                )
+                call.respond(config)
+            }
+
+            put {
+                val config = call.receive<StorageConfig>()
+                sqlClient.setConfig("storage.type", config.type)
+                config.endpoint?.let { sqlClient.setConfig("storage.endpoint", it) }
+                config.accessKey?.let { sqlClient.setConfig("storage.accessKey", it) }
+                config.secretKey?.let { sqlClient.setConfig("storage.secretKey", it) }
+                config.bucketName?.let { sqlClient.setConfig("storage.bucketName", it) }
+                config.region?.let { sqlClient.setConfig("storage.region", it) }
+                config.domain?.let { sqlClient.setConfig("storage.domain", it) }
+                config.basePath?.let { sqlClient.setConfig("storage.basePath", it) }
+                call.respond(mapOf("ok" to true))
+            }
         }
     }
 }

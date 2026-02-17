@@ -23,32 +23,12 @@ import site.addzero.component.glass.GlassButton
 import site.addzero.component.glass.GlassColors
 import site.addzero.component.glass.GlassTheme
 import site.addzero.component.glass.NeonGlassButton
+import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoTaskDetail
 import site.addzero.vibepocket.api.suno.SunoVocalRemovalRequest
 import site.addzero.vibepocket.model.TrackPlayerState
 
-@Serializable
-private data class VocalRemovalConfigResp(val key: String, val value: String?)
-
-/** 从内嵌 server 读取配置 */
-private suspend fun fetchVocalRemovalConfig(key: String): String? {
-    val client = HttpClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
-    return try {
-        client.get("http://localhost:8080/api/config/$key").body<VocalRemovalConfigResp>().value
-    } catch (_: Exception) {
-        null
-    } finally {
-        client.close()
-    }
-}
-
-/**
- * 人声分离确认 Dialog
- *
- * 接收 audioId 和 taskId，确认后调用 SunoApiClient.vocalRemoval()，
- * 轮询任务进度并展示分离后的音轨结果。
- */
 @Composable
 fun VocalRemovalConfirmDialog(
     audioId: String,
@@ -110,8 +90,8 @@ fun VocalRemovalConfirmDialog(
 
                             scope.launch {
                                 try {
-                                    val token = fetchVocalRemovalConfig("suno_api_token") ?: ""
-                                    val url = fetchVocalRemovalConfig("suno_api_base_url")
+                                    val token = ServerApiClient.getConfig("suno_api_token") ?: ""
+                                    val url = ServerApiClient.getConfig("suno_api_base_url")
                                         ?.ifBlank { null }
                                         ?: "https://api.sunoapi.org/api/v1"
                                     val client = SunoApiClient(apiToken = token, baseUrl = url)

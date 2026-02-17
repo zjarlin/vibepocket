@@ -11,33 +11,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
+import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoGeneratePersonaRequest
-import site.addzero.vibepocket.model.*
-
-@Serializable
-private data class PersonaConfigResp(val key: String, val value: String?)
-
-/** 从内嵌 server 读取配置 */
-private suspend fun fetchPersonaConfig(key: String): String? {
-    val client = HttpClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
-    return try {
-        client.get("http://localhost:8080/api/config/$key").body<PersonaConfigResp>().value
-    } catch (_: Exception) {
-        null
-    } finally {
-        client.close()
-    }
-}
+import site.addzero.vibepocket.model.PersonaSaveRequest
 
 /**
  * Persona 创建表单 Dialog
@@ -129,8 +108,8 @@ fun PersonaFormDialog(
 
                             scope.launch {
                                 try {
-                                    val token = fetchPersonaConfig("suno_api_token") ?: ""
-                                    val url = fetchPersonaConfig("suno_api_base_url")
+                                    val token = ServerApiClient.getConfig("suno_api_token") ?: ""
+                                    val url = ServerApiClient.getConfig("suno_api_base_url")
                                         ?.ifBlank { null }
                                         ?: "https://api.sunoapi.org/api/v1"
                                     val client = SunoApiClient(apiToken = token, baseUrl = url)

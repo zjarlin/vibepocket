@@ -22,32 +22,12 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import site.addzero.component.glass.*
+import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoExtendRequest
 import site.addzero.vibepocket.api.suno.SunoTaskDetail
 import site.addzero.vibepocket.model.*
 
-@Serializable
-private data class ExtendConfigResp(val key: String, val value: String?)
-
-/** 从内嵌 server 读取配置 */
-private suspend fun fetchExtendConfig(key: String): String? {
-    val client = HttpClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
-    return try {
-        client.get("http://localhost:8080/api/config/$key").body<ExtendConfigResp>().value
-    } catch (_: Exception) {
-        null
-    } finally {
-        client.close()
-    }
-}
-
-/**
- * 扩展音乐参数表单 Dialog
- *
- * 接收 trackId（audioId）和 taskId，展示续写位置、歌词、风格、标题等可选字段，
- * 提交后调用 SunoApiClient.extendMusic()，轮询任务进度并展示结果。
- */
 @Composable
 fun ExtendFormDialog(
     audioId: String,
@@ -147,8 +127,8 @@ fun ExtendFormDialog(
 
                             scope.launch {
                                 try {
-                                    val token = fetchExtendConfig("suno_api_token") ?: ""
-                                    val url = fetchExtendConfig("suno_api_base_url")
+                                    val token = ServerApiClient.getConfig("suno_api_token") ?: ""
+                                    val url = ServerApiClient.getConfig("suno_api_base_url")
                                         ?.ifBlank { null }
                                         ?: "https://api.sunoapi.org/api/v1"
                                     val client = SunoApiClient(apiToken = token, baseUrl = url)
