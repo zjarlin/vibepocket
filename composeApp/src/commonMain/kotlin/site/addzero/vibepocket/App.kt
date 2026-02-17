@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
-import com.shadcn.ui.components.layout.AdminDashboard
 import com.shadcn.ui.components.sidebar.LocalSidebarState
 import com.shadcn.ui.components.sidebar.SidebarLayout
 import com.shadcn.ui.components.sidebar.SidebarProvider
@@ -36,8 +35,7 @@ private val WELCOME_ROUTE = RouteKey("site.addzero.vibepocket.auth.WelcomePage")
 @Composable
 @Preview
 fun App() {
-    AdminDashboard()
-//    compoaseApp()
+    compoaseApp()
 
 }
 
