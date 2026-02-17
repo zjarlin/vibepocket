@@ -18,8 +18,7 @@ import kotlin.test.assertTrue
  * // Feature: suno-client-completion, Property 1: 单一活跃播放器不变量
  * **Validates: Requirements 1.4**
  *
- * Since AudioPlayerManager is a singleton backed by GadulkaPlayer (which requires
- * a real audio backend), this test validates the STATE MANAGEMENT LOGIC:
+ * This test validates the STATE MANAGEMENT LOGIC:
  * - After calling play(trackId, audioUrl), currentTrackId.value == trackId
  * - At any point, only the LAST played track is the current one
  * - After stop(), currentTrackId.value == null
@@ -52,28 +51,12 @@ class AudioPlayerManagerPropertyTest {
      * is the "current" track at any point, and it is always the LAST one played.
      *
      * After stop(), currentTrackId.value MUST be null.
-     *
-     * NOTE: Because AudioPlayerManager is a singleton that internally creates a real
-     * GadulkaPlayer, calling play() will attempt actual audio playback which may throw
-     * on platforms without an audio backend. This test validates the invariant by calling
-     * play() and immediately checking currentTrackId — the state assignment happens
-     * synchronously before the async player.play() call. On platforms where GadulkaPlayer
-     * initialization fails, this test should be run on a JVM/Desktop target.
-     *
-     * // Feature: suno-client-completion, Property 1: 单一活跃播放器不变量
-     * **Validates: Requirements 1.4**
      */
     @Test
     fun singleActivePlayerInvariant() = runTest {
         checkAll(PropTestConfig(iterations = 100), arbTrackPairList) { trackPairs ->
             for ((trackId, audioUrl) in trackPairs) {
-                try {
-                    AudioPlayerManager.play(trackId, audioUrl)
-                } catch (_: Exception) {
-                    // GadulkaPlayer.play() may throw on test platforms without audio backend.
-                    // The state assignment (currentTrackId = trackId) happens BEFORE player.play(),
-                    // so the invariant still holds.
-                }
+                AudioPlayerManager.play(trackId, audioUrl)
 
                 // Invariant: currentTrackId must be the LAST played trackId
                 assertEquals(
@@ -97,13 +80,10 @@ class AudioPlayerManagerPropertyTest {
      * Property 2: 播放/暂停状态切换
      *
      * For any (trackId, audioUrl) pair, the state transitions are deterministic:
-     *   play(trackId, audioUrl) → state is BUFFERING (synchronous assignment)
+     *   play(trackId, audioUrl) → state is PLAYING (dummy implementation)
      *   pause()                 → state is PAUSED
-     *   resume()                → state is PLAYING (synchronous assignment)
+     *   resume()                → state is PLAYING
      *   stop()                  → state is IDLE (cleanup)
-     *
-     * // Feature: suno-client-completion, Property 2: 播放/暂停状态切换
-     * **Validates: Requirements 1.2, 1.3**
      */
     @Test
     fun playPauseStateToggle() = runTest {
@@ -112,19 +92,15 @@ class AudioPlayerManagerPropertyTest {
             AudioPlayerManager.stop()
             assertEquals(PlayerState.IDLE, AudioPlayerManager.playerState.value)
 
-            // play() → state should be BUFFERING (set synchronously before player.play())
-            try {
-                AudioPlayerManager.play(trackId, audioUrl)
-            } catch (_: Exception) {
-                // Audio backend may not be available in test
-            }
+            // play() → state should be PLAYING (dummy)
+            AudioPlayerManager.play(trackId, audioUrl)
             assertEquals(
-                PlayerState.BUFFERING,
+                PlayerState.PLAYING,
                 AudioPlayerManager.playerState.value,
-                "After play($trackId, ...), playerState should be BUFFERING"
+                "After play($trackId, ...), playerState should be PLAYING"
             )
 
-            // pause() → state should be PAUSED (BUFFERING is a valid state for pause)
+            // pause() → state should be PAUSED
             AudioPlayerManager.pause()
             assertEquals(
                 PlayerState.PAUSED,
@@ -132,12 +108,8 @@ class AudioPlayerManagerPropertyTest {
                 "After pause(), playerState should be PAUSED"
             )
 
-            // resume() → state should be PLAYING (set synchronously in resume())
-            try {
-                AudioPlayerManager.resume()
-            } catch (_: Exception) {
-                // Audio backend may not be available in test
-            }
+            // resume() → state should be PLAYING
+            AudioPlayerManager.resume()
             assertEquals(
                 PlayerState.PLAYING,
                 AudioPlayerManager.playerState.value,
@@ -153,6 +125,7 @@ class AudioPlayerManagerPropertyTest {
             )
         }
     }
+}
 
     /**
      * Supplementary check: for any single play() call, the playerState should not remain IDLE

@@ -31,7 +31,7 @@ kotlin {
 
         implementation("io.github.kyant0:backdrop:2.0.0-alpha03")
 
-        implementation(libs.eu.iamkonstantin.kotlin.gadulka)
+//        implementation(libs.eu.iamkonstantin.kotlin.gadulka)
         implementation(libs.org.jetbrains.androidx.navigation3.navigation3.ui)
         implementation(libs.org.jetbrains.androidx.lifecycle.lifecycle.viewmodel.navigation3)
 

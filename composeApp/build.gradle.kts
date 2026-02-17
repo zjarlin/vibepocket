@@ -45,8 +45,7 @@ kotlin {
         implementation(libs.io.github.khubaibkhan4.mediaplayer.kmp)
 
 
-        //无头播放器
-        implementation(libs.eu.iamkonstantin.kotlin.gadulka)
+//        implementation(libs.eu.iamkonstantin.kotlin.gadulka)
 //        implementation(projects.shared)
     }
     sourceSets {

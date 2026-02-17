@@ -1,28 +1,30 @@
 package site.addzero.vibepocket.music
 
-import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
-import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayerState
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * 播放器状态枚举，对 GadulkaPlayerState 的简化映射
+ * 播放器状态枚举
  */
 enum class PlayerState {
     IDLE, BUFFERING, PLAYING, PAUSED, ERROR
 }
 
 /**
- * 全局单例播放管理器，基于 GadulkaPlayer。
+ * 全局单例播放管理器
+ *
+ * (由于 GadulkaPlayer 存在 JDK 版本冲突，当前已移除其实际实现，播放逻辑待替换为其他 KMP 播放器)
  *
  * 确保同时只有一首 Track 在播放（需求 1.4），
  * 通过 StateFlow 暴露播放状态供 UI 层观察。
  */
 object AudioPlayerManager {
 
-    private val player = GadulkaPlayer()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var pollingJob: Job? = null
 
@@ -43,41 +45,36 @@ object AudioPlayerManager {
     // ── 播放控制 ─────────────────────────────────────────────
 
     /**
-     * 播放指定 Track。如果当前有其他 Track 正在播放，先停止它（需求 1.4）。
+     * 播放指定 Track。
      */
     fun play(trackId: String, audioUrl: String) {
-        // 停止当前播放（如果有）
-        if (_currentTrackId.value != null) {
-            player.stop()
-        }
-        _currentTrackId.value = trackId
-        _playerState.value = PlayerState.BUFFERING
-        _progress.value = 0f
-        _position.value = 0L
-        _duration.value = 0L
+        // 停止当前播放
+        stop()
 
-        player.play(audioUrl)
-        startPolling()
+        _currentTrackId.value = trackId
+        _playerState.value = PlayerState.PLAYING
+        _progress.value = 0.5f // Dummy progress
+        _position.value = 1000L
+        _duration.value = 2000L
+
+        println("Dummy Play: $trackId -> $audioUrl")
     }
 
     /**
-     * 暂停当前播放（需求 1.3）。
+     * 暂停当前播放。
      */
     fun pause() {
-        if (_playerState.value == PlayerState.PLAYING || _playerState.value == PlayerState.BUFFERING) {
-            player.pause()
+        if (_playerState.value == PlayerState.PLAYING) {
             _playerState.value = PlayerState.PAUSED
         }
     }
 
     /**
-     * 恢复播放（需求 1.2 / 1.3 状态切换）。
+     * 恢复播放。
      */
     fun resume() {
         if (_playerState.value == PlayerState.PAUSED) {
-            player.play() // play() 无参数 = 从当前位置恢复
             _playerState.value = PlayerState.PLAYING
-            startPolling()
         }
     }
 
@@ -87,7 +84,6 @@ object AudioPlayerManager {
     fun stop() {
         pollingJob?.cancel()
         pollingJob = null
-        player.stop()
         _playerState.value = PlayerState.IDLE
         _currentTrackId.value = null
         _progress.value = 0f
@@ -96,60 +92,16 @@ object AudioPlayerManager {
     }
 
     /**
-     * 释放播放器资源，通常在 App 退出时调用。
+     * 释放播放器资源。
      */
     fun release() {
-        pollingJob?.cancel()
-        pollingJob = null
-        player.release()
-        _playerState.value = PlayerState.IDLE
-        _currentTrackId.value = null
-        _progress.value = 0f
-        _position.value = 0L
-        _duration.value = 0L
-    }
-
-    // ── 内部轮询 ─────────────────────────────────────────────
-
-    private fun startPolling() {
-        pollingJob?.cancel()
-        pollingJob = scope.launch {
-            while (isActive) {
-                syncStateFromPlayer()
-                // 如果播放结束（回到 IDLE 且不是手动停止），清理状态
-                if (_playerState.value == PlayerState.IDLE && _currentTrackId.value != null) {
-                    _currentTrackId.value = null
-                    _progress.value = 0f
-                    _position.value = 0L
-                    break
-                }
-                delay(250L) // 每 250ms 轮询一次，平衡精度与性能
-            }
-        }
-    }
-
-    private fun syncStateFromPlayer() {
-        // 映射 GadulkaPlayerState → PlayerState
-        val gadulkaState = player.currentPlayerState()
-        _playerState.value = when (gadulkaState) {
-            GadulkaPlayerState.PLAYING -> PlayerState.PLAYING
-            GadulkaPlayerState.PAUSED -> PlayerState.PAUSED
-            GadulkaPlayerState.BUFFERING -> PlayerState.BUFFERING
-            GadulkaPlayerState.IDLE -> PlayerState.IDLE
-            null -> _playerState.value // 保持当前状态
-        }
-
-        val pos = player.currentPosition() ?: 0L
-        val dur = player.currentDuration() ?: 0L
-        _position.value = pos
-        _duration.value = dur
-        _progress.value = if (dur > 0) (pos.toFloat() / dur).coerceIn(0f, 1f) else 0f
+        stop()
     }
 
     // ── 工具方法 ─────────────────────────────────────────────
 
     /**
-     * 格式化毫秒为 "m:ss" 字符串，供 TrackPlayerState 使用。
+     * 格式化毫秒为 "m:ss" 字符串。
      */
     fun formatTime(ms: Long): String {
         val totalSeconds = ms / 1000
@@ -157,4 +109,16 @@ object AudioPlayerManager {
         val seconds = totalSeconds % 60
         return "$minutes:${seconds.toString().padStart(2, '0')}"
     }
+}
+
+// ── 工具方法 ─────────────────────────────────────────────
+
+/**
+ * 格式化毫秒为 "m:ss" 字符串，供 TrackPlayerState 使用。
+ */
+fun formatTime(ms: Long): String {
+    val totalSeconds = ms / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return "$minutes:${seconds.toString().padStart(2, '0')}"
 }
