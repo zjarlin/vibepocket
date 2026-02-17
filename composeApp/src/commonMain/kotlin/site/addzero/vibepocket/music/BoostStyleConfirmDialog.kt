@@ -11,16 +11,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import site.addzero.component.glass.*
 import org.koin.compose.koinInject
+import site.addzero.component.glass.*
 import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoBoostStyleData

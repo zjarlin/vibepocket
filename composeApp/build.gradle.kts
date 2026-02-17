@@ -39,7 +39,7 @@ kotlin {
 //        implementation(project(":lib:api-qqmusic"))
         implementation(project(":lib:api-suno"))
 
-       implementation("site.addzero:api-netease:2026.02.17")
+        implementation("site.addzero:api-netease:2026.02.17")
 
 //        implementation(libs.de.jensklingenberg.ktorfit.ktorfit.lib.light)
         implementation(libs.io.github.khubaibkhan4.mediaplayer.kmp)
@@ -51,6 +51,8 @@ kotlin {
     }
     sourceSets {
         jvmMain.dependencies {
+            implementation(libs.io.ktor.ktor.server.netty.jvm)
+
             // 桌面端内嵌 Ktor 后端，无需单独部署 server
             implementation(projects.server)
         }

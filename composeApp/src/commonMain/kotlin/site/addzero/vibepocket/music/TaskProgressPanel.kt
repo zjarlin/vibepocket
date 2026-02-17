@@ -18,8 +18,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import site.addzero.component.glass.*
+import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.api.suno.SunoTaskDetail
-import site.addzero.vibepocket.model.*
+import site.addzero.vibepocket.model.FavoriteRequest
+import site.addzero.vibepocket.model.TrackAction
+import site.addzero.vibepocket.model.TrackPlayerState
 
 @Composable
 fun TaskProgressPanel(

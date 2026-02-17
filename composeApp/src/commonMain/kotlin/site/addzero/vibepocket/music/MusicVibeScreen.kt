@@ -12,20 +12,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json // Added
-import kotlinx.serialization.encodeToString // Added
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 import org.koin.compose.koinInject
 import site.addzero.component.glass.GlassButton
 import site.addzero.component.glass.GlassColors
 import site.addzero.component.glass.NeonGlassButton
 import site.addzero.ioc.annotation.Bean
-import site.addzero.vibepocket.api.ServerRepository // Added import
+import site.addzero.vibepocket.api.ServerRepository
 import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoGenerateRequest
 import site.addzero.vibepocket.api.suno.SunoTaskDetail
@@ -46,7 +41,9 @@ private val prettyJson = Json { // Added
 @Bean(tags = ["screen"])
 fun MusicVibeScreen() {
     val scope = rememberCoroutineScope()
-    val serverRepository: ServerRepository = koinInject() // Injected ServerRepository
+    val serverRepository: ServerRepository = koinInject()
+    val client: SunoApiClient = koinInject()
+
     // ===== 表单状态 =====
     var currentStep by remember { mutableStateOf(VibeStep.LYRICS) }
     // Step 1: 歌词
@@ -85,11 +82,10 @@ fun MusicVibeScreen() {
         }
         // 加载积分
         isLoadingCredits = true
-        try {
-            val client: SunoApiClient = koinInject()
-            credits = client.getCredits()
+        credits = try {
+            client.getCredits()
         } catch (_: Exception) {
-            credits = null
+            null
         } finally {
             isLoadingCredits = false
         }
@@ -242,7 +238,6 @@ fun MusicVibeScreen() {
                                         taskStatus = "正在提交..."
 
                                         scope.launch {
-                                            val client: SunoApiClient = koinInject()
                                             try {
                                                 taskStatus = "正在提交任务..."
                                                 val taskId = client.generateMusic(request)
@@ -262,11 +257,10 @@ fun MusicVibeScreen() {
                                             } finally {
                                                 isSubmitting = false
                                                 // 刷新积分
-                                                try {
-                                                    val refreshClient: SunoApiClient = koinInject()
-                                                    credits = refreshClient.getCredits()
+                                                credits = try {
+                                                    client.getCredits()
                                                 } catch (_: Exception) {
-                                                    // 刷新失败不阻断
+                                                    credits
                                                 }
                                             }
                                         }

@@ -11,13 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
 import site.addzero.component.glass.*
 import site.addzero.vibepocket.api.suno.SUNO_MODELS
@@ -38,6 +32,7 @@ fun UploadCoverFormDialog(
     onDismiss: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val client: SunoApiClient = koinInject()
 
     // ── 表单字段 ──
     var uploadUrl by remember { mutableStateOf("") }
@@ -175,8 +170,6 @@ fun UploadCoverFormDialog(
 
                             scope.launch {
                                 try {
-                                    val client: SunoApiClient = koinInject()
-
                                     val request = SunoUploadCoverRequest(
                                         uploadUrl = uploadUrl.trim(),
                                         prompt = prompt.ifBlank { null },
