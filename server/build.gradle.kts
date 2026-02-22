@@ -3,12 +3,14 @@ plugins {
     id("site.addzero.buildlogic.jvm.jimmer")
     id("site.addzero.buildlogic.jvm.jvm-koin")
     id("site.addzero.buildlogic.jvm.jvm-json-withtool")
+    id("site.addzero.buildlogic.jvm.jvm-ksp-plugin")
 }
 application {
     mainClass.set("site.addzero.vibepocket.ApplicationKt")
 }
 
 dependencies {
+    ksp("site.addzero:entity2iso-processor:2026.02.22")
 
     implementation("site.addzero:tool-api-music-search:2026.01.20")
     implementation("site.addzero:tool-api-suno:2026.02.06")

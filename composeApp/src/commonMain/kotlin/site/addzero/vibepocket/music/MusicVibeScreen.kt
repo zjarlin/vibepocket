@@ -1,7 +1,6 @@
 package site.addzero.vibepocket.music
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -14,17 +13,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
 import org.koin.compose.koinInject
 import site.addzero.component.glass.GlassButton
 import site.addzero.component.glass.GlassColors
 import site.addzero.component.glass.NeonGlassButton
 import site.addzero.ioc.annotation.Bean
-import site.addzero.vibepocket.api.ServerRepository
+import site.addzero.vibepocket.api.ServerApiClient
 import site.addzero.vibepocket.api.suno.SunoApiClient
 import site.addzero.vibepocket.api.suno.SunoGenerateRequest
 import site.addzero.vibepocket.api.suno.SunoTaskDetail
-import site.addzero.vibepocket.model.*
+import site.addzero.vibepocket.model.MusicHistorySaveRequest
+import site.addzero.vibepocket.model.MusicHistoryTrack
+import site.addzero.vibepocket.model.PersonaItem
 
 
 private val prettyJson = Json { // Added
@@ -41,7 +41,6 @@ private val prettyJson = Json { // Added
 @Bean(tags = ["screen"])
 fun MusicVibeScreen() {
     val scope = rememberCoroutineScope()
-    val serverRepository: ServerRepository = koinInject()
     val client: SunoApiClient = koinInject()
 
     // ===== 表单状态 =====
@@ -76,7 +75,7 @@ fun MusicVibeScreen() {
     // ── 初始化加载 Persona 列表 & 积分 ──
     LaunchedEffect(Unit) {
         personas = try {
-            serverRepository.getPersonas()
+            ServerApiClient.getPersonas()
         } catch (_: Exception) {
             emptyList()
         }
@@ -98,7 +97,7 @@ fun MusicVibeScreen() {
         val tId = detail.taskId ?: return@LaunchedEffect
         val tracks = detail.response?.sunoData ?: emptyList()
         try {
-            serverRepository.saveHistory(
+            ServerApiClient.saveHistory(
                 MusicHistorySaveRequest(
                     taskId = tId,
                     type = detail.type ?: "generate",

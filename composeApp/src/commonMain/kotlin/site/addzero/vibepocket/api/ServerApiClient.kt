@@ -43,6 +43,9 @@ object ServerApiClient {
 
     suspend fun getHistory() = historyApi.getHistory()
 
+    suspend fun saveHistory(request: site.addzero.vibepocket.model.MusicHistorySaveRequest) = 
+        historyApi.saveHistory(request)
+
     suspend fun getFavorites() = favoriteApi.getFavorites()
 
     suspend fun addFavorite(request: site.addzero.vibepocket.model.FavoriteRequest) = 
