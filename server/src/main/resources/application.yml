@@ -1,0 +1,11 @@
+datasources:
+  # 默认 SQLite 数据源
+  sqlite:
+    enabled: true
+    url: "jdbc:sqlite:vibepocket.db"
+    driver: "org.sqlite.SQLiteDriver"
+  # Postgres 数据源
+  postgres:
+    enabled: true
+    url: "jdbc:postgresql://ep-blue-firefly-aisnog4x-pooler.c-4.us-east-1.aws.neon.tech/neondb?user=neondb_owner&password=npg_B1lfyWedh0PY&sslmode=require&channelBinding=require"
+    driver: "org.postgresql.Driver"

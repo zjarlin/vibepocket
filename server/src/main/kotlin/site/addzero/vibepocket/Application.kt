@@ -1,12 +1,17 @@
 package site.addzero.vibepocket
 
+import io.ktor.server.application.Application
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import org.koin.mp.KoinPlatform
 import site.addzero.vibepocket.plugins.ioc.generated.iocModule
 
 
 fun main() {
     ktorApplication().start(wait = true)
+    val all = KoinPlatform.getKoin().getAll<Application>()
+    println()
+
 }
 
 /**
