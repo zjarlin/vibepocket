@@ -2,7 +2,7 @@ package site.addzero.component.glass
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.RoundedRectangle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
  * @param borderWidth 边框宽度，默认 1dp
  */
 fun Modifier.glassEffect(
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedRectangle(16.dp),
     backgroundColor: Color = GlassTheme.GlassSurface,
     borderColor: Color = GlassTheme.GlassBorder,
     borderWidth: Dp = 1.dp,
@@ -85,7 +85,7 @@ fun Modifier.glassEffect(
  * @param intensity 发光强度 (0.0 ~ 1.0)，默认 0.6
  */
 fun Modifier.neonGlassEffect(
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedRectangle(16.dp),
     glowColor: Color = GlassTheme.NeonCyan,
     intensity: Float = 0.6f,
 ): Modifier {
@@ -134,7 +134,7 @@ fun Modifier.neonGlassEffect(
  * @param secondaryColor 副渐变色，默认 [GlassTheme.NeonCyan]
  */
 fun Modifier.liquidGlassEffect(
-    shape: Shape = RoundedCornerShape(24.dp),
+    shape: Shape = RoundedRectangle(24.dp),
     primaryColor: Color = GlassTheme.NeonPurple,
     secondaryColor: Color = GlassTheme.NeonCyan,
 ): Modifier {
@@ -192,7 +192,7 @@ fun Modifier.liquidGlassEffect(
  * @param shape 裁剪形状，默认无圆角（侧边栏全高）
  */
 fun Modifier.jbPurpleGlassEffect(
-    shape: Shape = RoundedCornerShape(0.dp),
+    shape: Shape = RoundedRectangle(0.dp),
 ): Modifier {
     return this
         .clip(shape)

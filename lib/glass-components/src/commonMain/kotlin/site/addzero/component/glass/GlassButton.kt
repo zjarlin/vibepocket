@@ -4,7 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.RoundedRectangle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -35,7 +35,7 @@ fun GlassButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = RoundedCornerShape(12.dp),
+    shape: Shape = RoundedRectangle(12.dp),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -87,7 +87,7 @@ fun NeonGlassButton(
     glowColor: Color = GlassTheme.NeonCyan,
     enabled: Boolean = true,
     intensity: Float = 0.6f,
-    shape: Shape = RoundedCornerShape(12.dp),
+    shape: Shape = RoundedRectangle(12.dp),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -143,7 +143,7 @@ fun LiquidGlassButton(
     enabled: Boolean = true,
     primaryColor: Color = GlassTheme.NeonPurple,
     secondaryColor: Color = GlassTheme.NeonCyan,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedRectangle(16.dp),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 

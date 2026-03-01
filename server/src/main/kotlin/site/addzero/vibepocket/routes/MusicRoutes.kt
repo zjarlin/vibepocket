@@ -6,6 +6,7 @@ import io.ktor.server.routing.*
 import site.addzero.ioc.annotation.Bean
 import site.addzero.network.call.music.MusicSearchClient
 import site.addzero.network.call.music.model.MusicSearchRequest
+import site.addzero.starter.statuspages.ErrorResponse
 import site.addzero.vibepocket.dto.SearchRequest
 
 /**
@@ -17,30 +18,21 @@ fun Route.musicRoutes() {
 
         /**
          * 按关键词搜索歌曲（GET）
-         *
-         * Tag: music
-         * Query: query [String] 搜索关键词
-         * Responses:
-         *   - 200 搜索结果
-         *   - 400 缺少 query 参数
          */
         get("/search") {
             val query = call.request.queryParameters["query"]
             if (query.isNullOrBlank()) {
-                throw IllegalArgumentException("Query parameter 'query' is required.")
+                call.respond(io.ktor.http.HttpStatusCode.BadRequest, ErrorResponse(400, "Query parameter 'query' is required."))
+                return@get
             }
             val client = MusicSearchClient()
             val results = client.search(MusicSearchRequest(query))
+            // 假设 results 已经是序列化友好的（或者是 Map，Ktor 也能直接转 JSON）
             call.respond(results ?: emptyMap<String, Any>())
         }
 
         /**
          * 按关键词搜索歌曲（POST JSON）
-         *
-         * Tag: music
-         * Body: application/json [SearchRequest]
-         * Responses:
-         *   - 200 搜索结果
          */
         post("/search") {
             val req = call.receive<SearchRequest>()

@@ -6,9 +6,12 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import site.addzero.ioc.annotation.Bean
-import site.addzero.vibepocket.service.S3Service
+import site.addzero.starter.statuspages.ErrorResponse
+import site.addzero.vibepocket.dto.*
+import site.addzero.vibepocket.s3.S3Service
 import java.io.InputStream
 import java.util.*
 
@@ -49,12 +52,12 @@ fun Route.s3Routes() {
             }
 
             if (fileKey != null) {
-                call.respond(mapOf(
-                    "key" to fileKey,
-                    "url" to s3Service.getUrl(fileKey!!)
+                call.respond(S3UploadResponse(
+                    key = fileKey!!,
+                    url = s3Service.getUrl(fileKey!!)
                 ))
             } else {
-                call.respond(HttpStatusCode.BadRequest, "No file uploaded")
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse(400, "No file uploaded"))
             }
         }
 
@@ -62,17 +65,17 @@ fun Route.s3Routes() {
          * 获取文件 URL
          */
         get("/{key}") {
-            val key = call.parameters["key"] ?: return@get call.respond(HttpStatusCode.BadRequest, "Key is required")
-            call.respond(mapOf("url" to s3Service.getUrl(key)))
+            val key = call.parameters["key"] ?: return@get call.respond(HttpStatusCode.BadRequest, ErrorResponse(400, "Key is required"))
+            call.respond(S3UrlResponse(url = s3Service.getUrl(key)))
         }
 
         /**
          * 删除文件
          */
         delete("/{key}") {
-            val key = call.parameters["key"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "Key is required")
+            val key = call.parameters["key"] ?: return@delete call.respond(HttpStatusCode.BadRequest, ErrorResponse(400, "Key is required"))
             s3Service.delete(key)
-            call.respond(HttpStatusCode.OK, "Deleted")
+            call.respond(OkResponse())
         }
 
         /**
@@ -82,10 +85,10 @@ fun Route.s3Routes() {
             val prefix = call.request.queryParameters["prefix"]
             val objects = s3Service.list(prefix)
             call.respond(objects.map { 
-                mapOf(
-                    "key" to it.key(),
-                    "size" to it.size(),
-                    "lastModified" to it.lastModified().toString()
+                S3ObjectDto(
+                    key = it.key(),
+                    size = it.size(),
+                    lastModified = it.lastModified().toString()
                 )
             })
         }

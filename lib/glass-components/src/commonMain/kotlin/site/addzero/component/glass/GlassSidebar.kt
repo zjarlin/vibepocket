@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.RoundedRectangle
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -126,7 +126,7 @@ private fun SidebarMenuItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 2.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedRectangle(10.dp))
             .background(backgroundColor)
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 10.dp),
@@ -296,7 +296,7 @@ private fun <T> TreeNodeItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 8.dp + indentPadding, end = 8.dp, top = 2.dp, bottom = 2.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedRectangle(10.dp))
             .background(backgroundColor)
             .clickable {
                 if (hasChildren) {

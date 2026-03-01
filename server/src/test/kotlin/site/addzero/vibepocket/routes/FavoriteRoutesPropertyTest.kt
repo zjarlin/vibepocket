@@ -21,8 +21,9 @@ import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import org.sqlite.SQLiteDataSource
 import site.addzero.core.network.json.json
-import site.addzero.vibepocket.plugins.configureStatusPages
-import site.addzero.vibepocket.di.initDatabase
+import io.ktor.server.plugins.statuspages.*
+import site.addzero.starter.statuspages.ErrorResponse
+import site.addzero.vibepocket.jimmer.di.initDatabase
 import javax.sql.DataSource
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -85,7 +86,14 @@ class FavoriteRoutesPropertyTest {
             install(Koin) {
                 modules(module { single<KSqlClient> { sqlClient } })
             }
-            configureStatusPages()
+            install(StatusPages) {
+                exception<IllegalArgumentException> { call, cause ->
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(400, cause.message ?: "Bad Request"))
+                }
+                exception<Throwable> { call, cause ->
+                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(500, cause.message ?: "Internal Server Error"))
+                }
+            }
             routing { favoriteRoutes() }
         }
     }

@@ -8,8 +8,8 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import kotlinx.serialization.json.Json
-import site.addzero.vibepocket.dto.ErrorResponse
-import site.addzero.vibepocket.plugins.configureStatusPages
+import io.ktor.server.plugins.statuspages.*
+import site.addzero.starter.statuspages.ErrorResponse
 import kotlin.test.*
 
 /**
@@ -26,7 +26,17 @@ class MusicRoutesTest {
             install(ContentNegotiation) {
                 json(Json { prettyPrint = true; isLenient = true; ignoreUnknownKeys = true })
             }
-            configureStatusPages()
+            install(StatusPages) {
+                exception<IllegalArgumentException> { call, cause ->
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(400, cause.message ?: "Bad Request"))
+                }
+                exception<kotlinx.serialization.SerializationException> { call, cause ->
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(400, "Malformed JSON: ${cause.message}"))
+                }
+                exception<Throwable> { call, cause ->
+                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(500, cause.message ?: "Internal Server Error"))
+                }
+            }
             routing { musicRoutes() }
         }
     }

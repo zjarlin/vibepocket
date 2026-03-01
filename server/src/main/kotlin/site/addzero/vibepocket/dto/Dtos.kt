@@ -44,11 +44,49 @@ data class SearchRequest(
     val limit: Int = 20,
 )
 
-/** 错误响应 */
+/** 成功确认响应 */
 @Serializable
-data class ErrorResponse(
-    val code: Int,
-    val message: String,
+data class OkResponse(
+    val ok: Boolean = true,
+    val message: String = "success"
+)
+
+/** 搜索结果包装（通用） */
+@Serializable
+data class SearchResult<T>(
+    val code: Int = 200,
+    val message: String = "ok",
+    val data: List<T> = emptyList()
+)
+
+/** 音乐搜索结果 DTO */
+@Serializable
+data class MusicSearchResponse(
+    val code: Int = 200,
+    val message: String = "ok",
+    // 兼容可能存在的多种返回格式，使用 JsonObject 或 Any 处理暂未确定的结构
+    val data: kotlinx.serialization.json.JsonElement? = null
+)
+
+/** S3 上传响应 */
+@Serializable
+data class S3UploadResponse(
+    val key: String,
+    val url: String
+)
+
+/** S3 URL 响应 */
+@Serializable
+data class S3UrlResponse(
+    val url: String
+)
+
+/** S3 对象信息 */
+@Serializable
+data class S3ObjectDto(
+    val key: String,
+    val size: Long,
+    val lastModified: String
 )
 
 /** 单任务响应 */

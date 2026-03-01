@@ -14,9 +14,10 @@ import org.babyfish.jimmer.sql.kt.newKSqlClient
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import org.sqlite.SQLiteDataSource
-import site.addzero.vibepocket.di.initDatabase
+import site.addzero.vibepocket.jimmer.di.initDatabase
+import io.ktor.server.plugins.statuspages.*
+import site.addzero.starter.statuspages.ErrorResponse
 import site.addzero.vibepocket.dto.*
-import site.addzero.vibepocket.plugins.*
 import javax.sql.DataSource
 import kotlin.test.*
 
@@ -53,7 +54,17 @@ class SunoRoutesTest {
             install(ContentNegotiation) {
                 json(Json { prettyPrint = true; isLenient = true; ignoreUnknownKeys = true })
             }
-            configureStatusPages()
+            install(StatusPages) {
+                exception<IllegalArgumentException> { call, cause ->
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(400, cause.message ?: "Bad Request"))
+                }
+                exception<kotlinx.serialization.SerializationException> { call, cause ->
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(400, "Malformed JSON: ${cause.message}"))
+                }
+                exception<Throwable> { call, cause ->
+                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(500, cause.message ?: "Internal Server Error"))
+                }
+            }
             routing { sunoRoutes() }
         }
     }

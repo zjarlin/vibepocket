@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.RoundedRectangle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,7 +35,7 @@ fun GlassStatCard(
     label: String,
     modifier: Modifier = Modifier,
     glowColor: Color = GlassTheme.NeonCyan,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedRectangle(16.dp),
 ) {
     Box(
         modifier = modifier.neonGlassEffect(
@@ -82,7 +82,7 @@ fun GlassInfoCard(
     title: String,
     content: String,
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedRectangle(16.dp),
 ) {
     Box(
         modifier = modifier.glassEffect(shape = shape),
@@ -128,7 +128,7 @@ fun GlassFeatureCard(
     modifier: Modifier = Modifier,
     primaryColor: Color = GlassTheme.NeonPurple,
     secondaryColor: Color = GlassTheme.NeonCyan,
-    shape: Shape = RoundedCornerShape(20.dp),
+    shape: Shape = RoundedRectangle(20.dp),
     icon: (@Composable () -> Unit)? = null,
 ) {
     Box(

@@ -2,7 +2,7 @@ package site.addzero.component.glass
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.RoundedRectangle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedRectangle(16.dp),
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
@@ -48,7 +48,7 @@ fun NeonGlassCard(
     modifier: Modifier = Modifier,
     glowColor: Color = GlassTheme.NeonCyan,
     intensity: Float = 0.6f,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedRectangle(16.dp),
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
@@ -78,7 +78,7 @@ fun LiquidGlassCard(
     modifier: Modifier = Modifier,
     primaryColor: Color = GlassTheme.NeonPurple,
     secondaryColor: Color = GlassTheme.NeonCyan,
-    shape: Shape = RoundedCornerShape(24.dp),
+    shape: Shape = RoundedRectangle(24.dp),
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(

@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.RoundedRectangle
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +38,7 @@ fun GlassTextField(
     placeholder: String = "",
     enabled: Boolean = true,
     singleLine: Boolean = true,
-    shape: Shape = RoundedCornerShape(12.dp),
+    shape: Shape = RoundedRectangle(12.dp),
 ) {
     BasicTextField(
         value = value,
@@ -91,7 +91,7 @@ fun GlassTextArea(
     modifier: Modifier = Modifier,
     placeholder: String = "",
     enabled: Boolean = true,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedRectangle(16.dp),
 ) {
     BasicTextField(
         value = value,
@@ -148,7 +148,7 @@ fun GlassSearchField(
     onSearch: () -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "搜索...",
-    shape: Shape = RoundedCornerShape(24.dp),
+    shape: Shape = RoundedRectangle(24.dp),
 ) {
     BasicTextField(
         value = value,

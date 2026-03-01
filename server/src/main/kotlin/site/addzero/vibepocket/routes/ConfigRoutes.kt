@@ -8,9 +8,7 @@ import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.koin.ktor.ext.inject
 import site.addzero.ioc.annotation.Bean
-import site.addzero.vibepocket.model.AppConfig
-import site.addzero.vibepocket.model.key
-import site.addzero.vibepocket.model.value
+import site.addzero.vibepocket.dto.OkResponse
 
 /**
  * 从 app_config 表读取配置值
@@ -73,7 +71,7 @@ fun Route.configRoutes() {
         put {
             val entry = call.receive<ConfigEntry>()
             sqlClient.setConfig(entry.key, entry.value, entry.description)
-            call.respond(mapOf("ok" to true))
+            call.respond(OkResponse())
         }
 
         route("/storage") {
@@ -101,7 +99,7 @@ fun Route.configRoutes() {
                 config.region?.let { sqlClient.setConfig("storage.region", it) }
                 config.domain?.let { sqlClient.setConfig("storage.domain", it) }
                 config.basePath?.let { sqlClient.setConfig("storage.basePath", it) }
-                call.respond(mapOf("ok" to true))
+                call.respond(OkResponse())
             }
         }
     }

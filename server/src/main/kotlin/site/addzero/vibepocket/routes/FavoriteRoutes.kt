@@ -10,9 +10,11 @@ import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.koin.ktor.ext.inject
 import site.addzero.ioc.annotation.Bean
-import site.addzero.vibepocket.model.FavoriteTrack
-import site.addzero.vibepocket.model.by
-import site.addzero.vibepocket.model.trackId
+import site.addzero.starter.statuspages.ErrorResponse
+import site.addzero.vibepocket.dto.OkResponse
+import site.addzero.vibepocket.jimmer.model.entity.FavoriteTrack
+import site.addzero.vibepocket.jimmer.model.entity.by
+import site.addzero.vibepocket.jimmer.model.entity.trackId
 import java.time.LocalDateTime
 
 @Serializable
@@ -74,10 +76,10 @@ fun Route.favoriteRoutes() {
             }.execute().firstOrNull()
 
             if (existing == null) {
-                call.respond(HttpStatusCode.NotFound, mapOf("message" to "Favorite not found"))
+                call.respond(HttpStatusCode.NotFound, ErrorResponse(404, "Favorite not found"))
             } else {
                 sqlClient.deleteById(FavoriteTrack::class, existing.id)
-                call.respond(mapOf("ok" to true))
+                call.respond(OkResponse())
             }
         }
 

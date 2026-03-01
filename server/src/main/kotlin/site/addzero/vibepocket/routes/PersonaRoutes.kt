@@ -8,8 +8,8 @@ import org.babyfish.jimmer.kt.new
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.koin.ktor.ext.inject
 import site.addzero.ioc.annotation.Bean
-import site.addzero.vibepocket.model.PersonaRecord
-import site.addzero.vibepocket.model.by
+import site.addzero.vibepocket.jimmer.model.entity.PersonaRecord
+import site.addzero.vibepocket.jimmer.model.entity.by
 import java.time.LocalDateTime
 
 @Serializable
