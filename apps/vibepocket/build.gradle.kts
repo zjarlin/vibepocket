@@ -30,6 +30,7 @@ kotlin {
             implementation(libs.site.addzero.ioc.core)
             implementation(libs.site.addzero.network.starter)
             implementation(project(":lib:glass-components"))
+            implementation(project(":lib:vibepocket-navigation"))
             implementation(project(":lib:shadcn-ui-kmp"))
             implementation(project(":lib:api-suno"))
             implementation("site.addzero:api-netease:2026.02.17")
